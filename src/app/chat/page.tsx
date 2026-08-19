@@ -203,17 +203,7 @@ export default function ChatPage() {
   const agentList = Object.values(agents);
 
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [chatHistory, setChatHistory] = useState<Record<string, Message[]>>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("sumstar_chat_history");
-        if (saved) return JSON.parse(saved);
-      } catch (e) {
-        console.error("Error loading chat from localStorage:", e);
-      }
-    }
-    return {};
-  });
+  const [chatHistory, setChatHistory] = useState<Record<string, Message[]>>({});
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -221,16 +211,7 @@ export default function ChatPage() {
 
   const currentMessages = selectedAgent ? chatHistory[selectedAgent.id] ?? [] : [];
 
-  // Save chatHistory to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== "undefined" && Object.keys(chatHistory).length > 0) {
-      try {
-        localStorage.setItem("sumstar_chat_history", JSON.stringify(chatHistory));
-      } catch (e) {
-        console.error("Error saving chat to localStorage:", e);
-      }
-    }
-  }, [chatHistory]);
+  // Removed localStorage sync
 
   // Fetch past messages from Supabase for the selected agent
   useEffect(() => {
@@ -251,7 +232,7 @@ export default function ChatPage() {
           return;
         }
 
-        if (data && data.length > 0) {
+        if (data) {
           const loadedMsgs: Message[] = data
             .map((row: any) => {
               try {
@@ -264,12 +245,10 @@ export default function ChatPage() {
             })
             .filter((m: any): m is Message => m !== null && Boolean(m.content));
 
-          if (loadedMsgs.length > 0) {
-            setChatHistory((prev) => ({
-              ...prev,
-              [agentId]: loadedMsgs,
-            }));
-          }
+          setChatHistory((prev) => ({
+            ...prev,
+            [agentId]: loadedMsgs,
+          }));
         }
       } catch (e: any) {
         console.warn("Notice: chat history fetch notice:", e?.message || e);
@@ -389,13 +368,7 @@ export default function ChatPage() {
     if (!selectedAgent) return;
     const agentId = selectedAgent.id;
     setChatHistory((prev) => {
-      const updated = { ...prev, [agentId]: [] };
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.setItem("sumstar_chat_history", JSON.stringify(updated));
-        } catch (e) {}
-      }
-      return updated;
+      return { ...prev, [agentId]: [] };
     });
     try {
       const supabase = createClient();

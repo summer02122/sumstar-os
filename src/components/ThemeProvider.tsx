@@ -88,7 +88,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Dynamic Favicon Update from Custom Logo
   useEffect(() => {
-    setBrowserFavicon("/logo_star.jpg");
+    setBrowserFavicon("/logo_star.png");
   }, []);
 
   return <>{children}</>;

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 import { 
   CheckCircle2, Circle, Plus, Trash2, Sparkles, 
   Calendar, Flag, Tag, Clock, ArrowRight, ArrowLeft,
@@ -35,59 +36,9 @@ export interface QuickNote {
 const STORAGE_KEY_TODOS = "sumstar_todos_v1";
 const STORAGE_KEY_NOTES = "sumstar_notes_v1";
 
-const INITIAL_TODOS: TodoItem[] = [
-  {
-    id: "todo-1",
-    title: "ประชุมทีมเพื่อสรุป Product Strategy ประจำสัปดาห์",
-    completed: false,
-    priority: "high",
-    category: "MEETING",
-    dueDate: new Date().toISOString().split("T")[0],
-    notes: "เตรียมสไลด์และประเด็นถกไอเดียกับ CEO (SUM)",
-    createdAt: Date.now() - 3600000
-  },
-  {
-    id: "todo-2",
-    title: "ตรวจสอบ SOPs การทำงานของฝ่าย Marketing และ HR",
-    completed: false,
-    priority: "medium",
-    category: "STUDIO",
-    dueDate: null,
-    notes: "ให้ SATIN ตรวจสอบความถูกต้องของคู่มือ",
-    createdAt: Date.now() - 7200000
-  },
-  {
-    id: "todo-3",
-    title: "ส่งรายงานสรุปยอดผู้ใช้งานและผลตอบรับประจำเดือน",
-    completed: true,
-    priority: "low",
-    category: "REPORT",
-    dueDate: null,
-    notes: "SINCARE บันทึกลง Central Memory เรียบร้อยแล้ว",
-    createdAt: Date.now() - 86400000
-  }
-];
+const INITIAL_TODOS: TodoItem[] = [];
 
-const INITIAL_NOTES: QuickNote[] = [
-  {
-    id: "note-1",
-    title: "ไอเดียโปรโมต Studio ประจำไตรมาส",
-    content: "1. เน้นทำ Short-form Video บน TikTok และ Reels แนะนำความสามารถของ Multi-Agent\n2. จัดสัมมนาออนไลน์ Live Demo ระบบ SumStar OS\n3. ติดต่อพาร์ตเนอร์สร้าง AI Templates",
-    color: "yellow",
-    isPinned: true,
-    createdAt: Date.now() - 10000000,
-    updatedAt: Date.now() - 10000000
-  },
-  {
-    id: "note-2",
-    title: "บันทึกข้อมูลติดต่อลูกค้าสำคัญ",
-    content: "คุณวิชัย (K.Vichai) - สนใจติดตั้ง SumStar OS สำหรับทีม Agency\nเบอร์: 081-xxx-xxxx\nอีเมล: contact@agency.co.th",
-    color: "pink",
-    isPinned: false,
-    createdAt: Date.now() - 50000000,
-    updatedAt: Date.now() - 50000000
-  }
-];
+const INITIAL_NOTES: QuickNote[] = [];
 
 const NOTE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   yellow: { bg: "bg-[#FFF3B0] dark:bg-[#4A4020]", border: "border-black dark:border-amber-400/40", text: "text-black dark:text-amber-100" },
@@ -128,74 +79,152 @@ export default function TodoPage() {
   const [noteContent, setNoteContent] = useState("");
   const [noteColor, setNoteColor] = useState<QuickNote["color"]>("yellow");
 
-  // Load from localStorage
+  // Load from Supabase instead of localStorage
   useEffect(() => {
-    try {
-      const savedTodos = localStorage.getItem(STORAGE_KEY_TODOS);
-      if (savedTodos) {
-        setTodos(JSON.parse(savedTodos));
-      } else {
-        setTodos(INITIAL_TODOS);
-      }
+    let mounted = true;
+    async function loadData() {
+      try {
+        const supabase = createClient();
+        
+        // Fetch Todos
+        const { data: todosData, error: tErr } = await supabase
+          .from("todos")
+          .select("*")
+          .order("created_at", { ascending: false });
+          
+        if (!tErr && todosData) {
+          const parsedTodos: TodoItem[] = todosData.map(t => ({
+            id: t.id,
+            title: t.title,
+            completed: t.completed,
+            priority: t.priority as any,
+            category: t.category,
+            dueDate: t.due_date,
+            notes: t.notes || "",
+            createdAt: new Date(t.created_at).getTime()
+          }));
+          if (mounted) setTodos(parsedTodos);
+        } else {
+          if (mounted) setTodos(INITIAL_TODOS);
+        }
 
-      const savedNotes = localStorage.getItem(STORAGE_KEY_NOTES);
-      if (savedNotes) {
-        setNotes(JSON.parse(savedNotes));
-      } else {
-        setNotes(INITIAL_NOTES);
+        // Fetch Notes
+        const { data: notesData, error: nErr } = await supabase
+          .from("notes")
+          .select("*")
+          .order("created_at", { ascending: false });
+          
+        if (!nErr && notesData) {
+          const parsedNotes: QuickNote[] = notesData.map(n => ({
+            id: n.id,
+            title: n.title,
+            content: n.content,
+            color: n.color as any,
+            isPinned: n.is_pinned,
+            createdAt: new Date(n.created_at).getTime(),
+            updatedAt: new Date(n.updated_at).getTime()
+          }));
+          if (mounted) setNotes(parsedNotes);
+        } else {
+          if (mounted) setNotes(INITIAL_NOTES);
+        }
+
+        if (mounted) setIsLoaded(true);
+
+      } catch (e) {
+        console.error("Failed to load from Supabase:", e);
+        if (mounted) {
+          setTodos(INITIAL_TODOS);
+          setNotes(INITIAL_NOTES);
+          setIsLoaded(true);
+        }
       }
-    } catch (e) {
-      setTodos(INITIAL_TODOS);
-      setNotes(INITIAL_NOTES);
     }
-    setIsLoaded(true);
+    
+    loadData();
+    
+    return () => { mounted = false; };
   }, []);
 
-  // Save Todos to localStorage
-  const saveTodos = (newTodos: TodoItem[]) => {
-    setTodos(newTodos);
-    try {
-      localStorage.setItem(STORAGE_KEY_TODOS, JSON.stringify(newTodos));
-    } catch (e) {
-      console.warn("Failed to save todos:", e);
+  // Now we update state immediately for UI, and then sync to Supabase in background
+  const addTodosToDb = async (newTodos: TodoItem[]) => {
+    // Optimistically update UI
+    setTodos(prev => [...newTodos, ...prev]);
+    
+    // Insert into DB
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const inserts = newTodos.map(t => ({
+      user_id: user.id,
+      title: t.title,
+      completed: t.completed,
+      priority: t.priority,
+      category: t.category,
+      due_date: t.dueDate,
+      notes: t.notes
+    }));
+    
+    const { data } = await supabase.from("todos").insert(inserts).select();
+    if (data) {
+      // Replace temporary IDs with real UUIDs from DB
+      setTodos(prev => {
+        const next = [...prev];
+        data.forEach((dbTodo, i) => {
+          const matchIndex = next.findIndex(t => t.title === dbTodo.title && t.id.startsWith("todo-"));
+          if (matchIndex >= 0) {
+            next[matchIndex] = { ...next[matchIndex], id: dbTodo.id, createdAt: new Date(dbTodo.created_at).getTime() };
+          }
+        });
+        return next;
+      });
+    }
+  };
+  
+  const toggleTodo = async (id: string) => {
+    const target = todos.find(t => t.id === id);
+    if (!target) return;
+    
+    const newCompleted = !target.completed;
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: newCompleted } : t));
+    
+    // Attempt DB Update if it's a UUID (not mock data)
+    if (id.includes("-") && id.length > 10) {
+      const supabase = createClient();
+      await supabase.from("todos").update({ completed: newCompleted }).eq("id", id);
     }
   };
 
-  // Save Notes to localStorage
-  const saveNotes = (newNotes: QuickNote[]) => {
-    setNotes(newNotes);
-    try {
-      localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(newNotes));
-    } catch (e) {
-      console.warn("Failed to save notes:", e);
+  const deleteTodo = async (id: string) => {
+    setTodos(prev => prev.filter(t => t.id !== id));
+    if (id.includes("-") && id.length > 10) {
+      const supabase = createClient();
+      await supabase.from("todos").delete().eq("id", id);
     }
   };
 
-  // Toggle Todo Complete
-  const toggleTodo = (id: string) => {
-    const updated = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-    saveTodos(updated);
+  const deleteNote = async (id: string) => {
+    setNotes(prev => prev.filter(n => n.id !== id));
+    if (id.includes("-") && id.length > 10) {
+      const supabase = createClient();
+      await supabase.from("notes").delete().eq("id", id);
+    }
   };
 
-  // Delete Todo
-  const deleteTodo = (id: string) => {
-    const updated = todos.filter(t => t.id !== id);
-    saveTodos(updated);
+  const toggleNotePin = async (id: string) => {
+    const target = notes.find(n => n.id === id);
+    if (!target) return;
+    
+    const newPinned = !target.isPinned;
+    setNotes(prev => prev.map(n => n.id === id ? { ...n, isPinned: newPinned } : n));
+    
+    if (id.includes("-") && id.length > 10) {
+      const supabase = createClient();
+      await supabase.from("notes").update({ is_pinned: newPinned }).eq("id", id);
+    }
   };
 
-  // Delete Note
-  const deleteNote = (id: string) => {
-    const updated = notes.filter(n => n.id !== id);
-    saveNotes(updated);
-  };
-
-  // Toggle Note Pin
-  const toggleNotePin = (id: string) => {
-    const updated = notes.map(n => n.id === id ? { ...n, isPinned: !n.isPinned } : n);
-    saveNotes(updated);
-  };
-
-  // Open Note Modal for Create / Edit
   const openNoteModal = (note?: QuickNote) => {
     if (note) {
       setEditingNoteId(note.id);
@@ -211,34 +240,58 @@ export default function TodoPage() {
     setShowNoteModal(true);
   };
 
-  // Save Note Submit
-  const handleSaveNote = (e: React.FormEvent) => {
+  const handleSaveNote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!noteTitle.trim() && !noteContent.trim()) return;
 
-    if (editingNoteId) {
-      const updated = notes.map(n => n.id === editingNoteId ? {
-        ...n,
-        title: noteTitle.trim() || "Untitled Note",
-        content: noteContent.trim(),
-        color: noteColor,
-        updatedAt: Date.now()
-      } : n);
-      saveNotes(updated);
-    } else {
-      const newNote: QuickNote = {
-        id: `note-${Date.now()}`,
-        title: noteTitle.trim() || "Untitled Note",
-        content: noteContent.trim(),
-        color: noteColor,
-        isPinned: false,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-      saveNotes([newNote, ...notes]);
-    }
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    setShowNoteModal(false);
+    if (editingNoteId) {
+      // Optimistic UI update
+      const updatedTitle = noteTitle.trim() || "Untitled Note";
+      const updatedContent = noteContent.trim();
+      
+      setNotes(prev => prev.map(n => n.id === editingNoteId ? {
+        ...n, title: updatedTitle, content: updatedContent, color: noteColor, updatedAt: Date.now()
+      } : n));
+      setShowNoteModal(false);
+
+      if (editingNoteId.includes("-") && editingNoteId.length > 10) {
+        await supabase.from("notes").update({
+          title: updatedTitle,
+          content: updatedContent,
+          color: noteColor,
+          updated_at: new Date().toISOString()
+        }).eq("id", editingNoteId);
+      }
+    } else {
+      // Create new
+      setShowNoteModal(false);
+      
+      if (user) {
+        const { data: newDbNote } = await supabase.from("notes").insert({
+          user_id: user.id,
+          title: noteTitle.trim() || "Untitled Note",
+          content: noteContent.trim(),
+          color: noteColor,
+          is_pinned: false
+        }).select().single();
+        
+        if (newDbNote) {
+          const freshNote: QuickNote = {
+            id: newDbNote.id,
+            title: newDbNote.title,
+            content: newDbNote.content,
+            color: newDbNote.color as any,
+            isPinned: newDbNote.is_pinned,
+            createdAt: new Date(newDbNote.created_at).getTime(),
+            updatedAt: new Date(newDbNote.updated_at).getTime()
+          };
+          setNotes(prev => [freshNote, ...prev]);
+        }
+      }
+    }
   };
 
   // AI: Convert Note to Tasks via SINCARE
@@ -270,7 +323,7 @@ export default function TodoPage() {
           createdAt: Date.now() + idx
         }));
 
-        saveTodos([...generatedTodos, ...todos]);
+        addTodosToDb(generatedTodos);
         setActiveTab("todos");
 
         Swal.fire({
@@ -358,7 +411,7 @@ export default function TodoPage() {
           createdAt: Date.now()
         };
 
-        saveTodos([newTodo, ...todos]);
+        addTodosToDb([newTodo]);
         setNlInput("");
         setActiveTab("todos");
         
@@ -407,7 +460,7 @@ export default function TodoPage() {
           createdAt: Date.now() + idx
         }));
 
-        saveTodos([...subtasks, ...todos]);
+        addTodosToDb(subtasks);
 
         Swal.fire({
           icon: "success",
@@ -516,7 +569,7 @@ export default function TodoPage() {
       createdAt: Date.now()
     };
 
-    saveTodos([newTodo, ...todos]);
+    addTodosToDb([newTodo]);
     setManualTitle("");
     setManualNotes("");
     setManualDueDate("");

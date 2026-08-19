@@ -109,7 +109,7 @@ export function Sidebar() {
                 <div 
                   className="relative w-8 h-8 bg-white flex items-center justify-center border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] overflow-hidden shrink-0"
                 >
-                  <img src="/logo_star.jpg" alt="Logo" className="w-full h-full object-cover" />
+                  <img src="/logo_star.png" alt="Logo" className="w-full h-full object-cover" />
                 </div>
 
                 <Link href="/" className="flex flex-col group">
