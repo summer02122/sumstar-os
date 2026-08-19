@@ -1,0 +1,211 @@
+"use client";
+
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Home, Users, CheckSquare, Brain, Settings, Menu, X, Sun, Moon, LogOut, BookOpen, MessageSquare, ListTodo, Upload } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useAgentStore } from "@/store/agentStore";
+import { createClient } from "@/utils/supabase/client";
+import { processAndCompressImage } from "@/lib/imageUtils";
+import Swal from "sweetalert2";
+
+export function Sidebar() {
+  const [isOpen, setIsOpen] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const logoFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const { settings, updateSettings } = useAgentStore();
+  const router = useRouter();
+  const supabase = createClient();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const compressed = await processAndCompressImage(file, 400, 400, 0.85);
+        await updateSettings({ logoUrl: compressed });
+        Swal.fire({
+          icon: 'success',
+          title: 'เปลี่ยนรูปโลโก้เรียบร้อยแล้วค่ะ!',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        console.error("Failed to update logo:", err);
+      }
+    }
+  };
+
+  if (pathname === '/login') {
+    return null;
+  }
+  
+  const navItems = [
+    { icon: Home, label: "Home", href: "/" },
+    { icon: MessageSquare, label: "Chat", href: "/chat" },
+    { icon: ListTodo, label: "To-Do List", href: "/todo" },
+    { icon: Users, label: "Agent List", href: "/office" },
+    { icon: CheckSquare, label: "Recent Tasks", href: "/tasks" },
+    { icon: Brain, label: "Memory", href: "/memory" },
+    { icon: BookOpen, label: "Skills", href: "/skills" },
+    { icon: Settings, label: "Settings", href: "/settings" },
+  ];
+
+  const toggleTheme = () => {
+    updateSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' });
+  };
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: 'ออกจากระบบ?',
+      text: 'คุณต้องการออกจากระบบ SumStar OS ใช่หรือไม่?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'LOGOUT',
+      cancelButtonText: 'CANCEL'
+    });
+
+    if (result.isConfirmed) {
+      await supabase.auth.signOut();
+      await Swal.fire({
+        icon: 'success',
+        title: 'ออกจากระบบเรียบร้อย!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      router.push('/login');
+    }
+  };
+
+  return (
+    <>
+      {/* Mobile toggle */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Hidden file picker for logo change */}
+      <input
+        type="file"
+        accept="image/*"
+        ref={logoFileInputRef}
+        onChange={handleLogoUpload}
+        className="hidden"
+      />
+
+      {/* Sidebar */}
+      <AnimatePresence mode="wait">
+        {isOpen && (
+          <motion.aside 
+            initial={{ x: -280, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -280, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="w-64 border-r-4 border-black dark:border-border bg-surface dark:bg-card h-screen sticky top-0 flex flex-col z-40 shrink-0 font-sans shadow-[4px_0px_0px_#000000] dark:shadow-[4px_0px_0px_var(--border)]"
+          >
+            {/* Header */}
+            <div className="p-4 border-b-4 border-black dark:border-border flex items-center justify-between bg-white dark:bg-card">
+              <div className="flex items-center gap-2.5">
+                <div 
+                  onClick={() => logoFileInputRef.current?.click()}
+                  className="relative w-8 h-8 bg-black dark:bg-primary text-white dark:text-primary-foreground flex items-center justify-center font-heading font-black text-base border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] overflow-hidden cursor-pointer group shrink-0"
+                  title="คลิกเพื่อเปลี่ยนรูปภาพโลโก้ / Click to change logo"
+                >
+                  {mounted && settings.logoUrl ? (
+                    <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>★</span>
+                  )}
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Upload size={12} className="text-white stroke-[3]" />
+                  </div>
+                </div>
+
+                <Link href="/" className="flex flex-col group">
+                  <span className="font-heading font-black tracking-tight text-lg text-black dark:text-foreground uppercase leading-none group-hover:text-primary transition-colors">
+                    SumStar OS
+                  </span>
+                  <span className="text-[9px] font-mono font-bold tracking-widest text-black/60 dark:text-foreground/60 uppercase mt-0.5">
+                    Studio Edition
+                  </span>
+                </Link>
+              </div>
+              
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="hidden md:flex p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-none text-black dark:text-foreground transition-colors border border-transparent hover:border-black dark:hover:border-border"
+              >
+                <Menu size={18} />
+              </button>
+            </div>
+
+            {/* Navigation Links */}
+            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <motion.div key={item.href} whileHover={{ x: 3 }} whileTap={{ scale: 0.98 }}>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-none text-xs uppercase font-heading tracking-wider transition-all ${
+                        isActive
+                          ? "bg-white text-black dark:bg-primary dark:text-primary-foreground font-black shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)] border-2 border-black dark:border-border rotate-[-1deg]"
+                          : "text-black/80 dark:text-foreground/80 font-bold border-2 border-transparent hover:border-black dark:hover:border-border hover:bg-white dark:hover:bg-card hover:text-black dark:hover:text-foreground hover:shadow-[2px_2px_0px_#000000] dark:hover:shadow-[2px_2px_0px_var(--border)] hover:rotate-[0.5deg]"
+                      }`}
+                    >
+                      <item.icon size={16} className="shrink-0 stroke-[2.5]" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </nav>
+            
+            {/* Theme Toggle & User (Bottom) */}
+            <div className="p-3 border-t-4 border-black dark:border-border bg-white dark:bg-card mt-auto space-y-2">
+              <button 
+                onClick={toggleTheme}
+                className="w-full flex items-center gap-2.5 px-3 py-2 bg-surface dark:bg-surface-2 border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground font-heading font-black uppercase text-[11px] hover:bg-primary/20 dark:hover:bg-primary/30 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+              >
+                {mounted && settings.theme === 'dark' ? <Sun size={15} className="stroke-[2.5]" /> : <Moon size={15} className="stroke-[2.5]" />}
+                <span>
+                  {mounted && settings.theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </span>
+              </button>
+              
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2.5 px-3 py-2 bg-primary text-primary-foreground border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] font-heading font-black uppercase text-[11px] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+              >
+                <LogOut size={15} className="stroke-[2.5]" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* When closed on desktop, show a small toggle */}
+      {!isOpen && (
+        <div className="hidden md:flex flex-col items-center py-4 w-12 border-r-4 border-black dark:border-border h-screen sticky top-0 bg-surface shrink-0">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground hover:bg-primary/20 transition-colors"
+          >
+            <Menu size={18} />
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+

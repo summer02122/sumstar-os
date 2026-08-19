@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Prompt:wght@600;700;800&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans: var(--font-ibm-plex-thai), var(--font-space-grotesk), "IBM Plex Sans Thai", "Space Grotesk", sans-serif;
+    --font-heading: var(--font-archivo), var(--font-ibm-plex-thai), "Archivo Black", "Prompt", "IBM Plex Sans Thai", sans-serif;
+    --font-display: var(--font-syne), var(--font-ibm-plex-thai), "Syne", "Prompt", sans-serif;
+    
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--card);
+    --color-popover-foreground: var(--card-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--surface-2);
+    --color-muted-foreground: var(--text-muted);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--foreground);
+    --color-destructive: var(--danger);
+    --color-destructive-foreground: var(--primary-foreground);
+    --color-border: var(--border);
+    --color-input: var(--border);
+    --color-ring: var(--primary);
+
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-text-muted: var(--text-muted);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-danger: var(--danger);
+
+    --radius: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+
+    --animate-wiggle: wiggle 0.8s ease-in-out infinite;
+    --animate-float: float 3s ease-in-out infinite;
+    --animate-pop: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(-1.5deg); }
+      50% { transform: rotate(1.5deg); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.96); }
+      100% { transform: scale(1); }
+    }
+}
+
+:root {
+    --background: #FFCAD4;
+    --foreground: #000000;
+    --surface: #FFE5EC;
+    --surface-2: #FFFFFF;
+    --card: #FFFFFF;
+    --card-foreground: #000000;
+    --border: #000000;
+    --text-muted: #333333;
+    --primary: #000000;
+    --primary-foreground: #FFFFFF;
+    --secondary: #FFFFFF;
+    --secondary-foreground: #000000;
+    --accent: #FF85A1;
+    --success: #10B981;
+    --warning: #FFB703;
+    --danger: #FF0055;
+    --radius: 0px;
+}
+
+.dark {
+    --background: #181416;
+    --foreground: #FFCAD4;
+    --surface: #262024;
+    --surface-2: #342C31;
+    --card: #262024;
+    --card-foreground: #FFCAD4;
+    --border: #FFCAD4;
+    --text-muted: #FFB3BA;
+    --primary: #FFCAD4;
+    --primary-foreground: #000000;
+    --secondary: #342C31;
+    --secondary-foreground: #FFCAD4;
+    --accent: #FF85A1;
+    --success: #34D399;
+    --warning: #FBBF24;
+    --danger: #FF4D6D;
+    --radius: 0px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), sans-serif;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  
+  ::selection {
+    background: #000000;
+    color: #FFCAD4;
+  }
+  .dark ::selection {
+    background: #FFCAD4;
+    color: #000000;
+  }
+  
+  /* Universal Brutalist Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #000000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #FFCAD4;
+    border: 1px solid #000000;
+  }
+}
+
+@layer utilities {
+  .shadow-brutal-sm {
+    box-shadow: 2px 2px 0px #000000;
+  }
+  .shadow-brutal {
+    box-shadow: 4px 4px 0px #000000;
+  }
+  .shadow-brutal-lg {
+    box-shadow: 6px 6px 0px #000000;
+  }
+  .shadow-brutal-xl {
+    box-shadow: 8px 8px 0px #000000;
+  }
+  .dark .shadow-brutal-sm {
+    box-shadow: 2px 2px 0px #FFCAD4;
+  }
+  .dark .shadow-brutal {
+    box-shadow: 4px 4px 0px #FFCAD4;
+  }
+  .dark .shadow-brutal-lg {
+    box-shadow: 6px 6px 0px #FFCAD4;
+  }
+  .dark .shadow-brutal-xl {
+    box-shadow: 8px 8px 0px #FFCAD4;
+  }
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #000000;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #FFCAD4;
+    border: 1px solid #000000;
+  }
+}
+
+/* SweetAlert2 Neobrutalist Universal Styling */
+div:where(.swal2-container) {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+div:where(.swal2-container) div:where(.swal2-popup) {
+  border-radius: 0px !important;
+  border: 4px solid var(--border, #000000) !important;
+  box-shadow: 6px 6px 0px var(--border, #000000) !important;
+  background-color: var(--card, #ffffff) !important;
+  color: var(--foreground, #000000) !important;
+  font-family: var(--font-sans) !important;
+  padding: 1.75rem !important;
+}
+
+div:where(.swal2-container) .swal2-title {
+  font-family: var(--font-heading) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  color: var(--foreground, #000000) !important;
+  font-size: 1.25rem !important;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  color: var(--foreground, #000000) !important;
+  opacity: 0.85 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.6 !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm) {
+  border-radius: 0px !important;
+  border: 2px solid var(--border, #000000) !important;
+  box-shadow: 3px 3px 0px var(--border, #000000) !important;
+  background-color: var(--primary, #000000) !important;
+  color: var(--primary-foreground, #ffffff) !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.65rem 1.35rem !important;
+  transition: all 0.15s ease !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel) {
+  border-radius: 0px !important;
+  border: 2px solid var(--border, #000000) !important;
+  box-shadow: 3px 3px 0px var(--border, #000000) !important;
+  background-color: var(--surface-2, #ffffff) !important;
+  color: var(--foreground, #000000) !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.65rem 1.35rem !important;
+  transition: all 0.15s ease !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled):hover {
+  opacity: 0.9 !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled):active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px var(--border, #000000) !important;
+}
+
+div:where(.swal2-container) .swal2-icon {
+  border-radius: 0px !important;
+  border: 3px solid var(--border, #000000) !important;
+  box-shadow: 3px 3px 0px var(--border, #000000) !important;
+  margin: 0.75rem auto 1.25rem auto !important;
+}
