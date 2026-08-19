@@ -97,8 +97,9 @@ export function Sidebar() {
       </button>
 
       {/* Mobile Bottom Nav (Floating Pill) */}
-      <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
-        <nav className="bg-surface dark:bg-card border-2 border-black dark:border-border shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_var(--border)] rounded-full flex items-center justify-between px-2 py-1.5 max-w-sm mx-auto">
+      {!isOpen && (
+        <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
+          <nav className="bg-surface dark:bg-card border-2 border-black dark:border-border shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_var(--border)] rounded-full flex items-center justify-between px-2 py-1.5 max-w-sm mx-auto">
           {navItems.slice(0, 4).map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -125,6 +126,7 @@ export function Sidebar() {
           })}
         </nav>
       </div>
+      )}
 
       {/* Mobile backdrop */}
       <AnimatePresence>
