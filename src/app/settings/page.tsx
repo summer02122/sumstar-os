@@ -265,34 +265,7 @@ export default function SettingsPage() {
                   <div className="pt-4 border-t-2 border-black dark:border-border">
                     <h4 className="font-heading font-black text-xs uppercase text-black dark:text-foreground mb-3">Custom Theme & Branding</h4>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-heading font-black text-black dark:text-foreground uppercase tracking-wider mb-1.5">Workspace Logo / Profile Picture</label>
-                        <input type="file" accept="image/*" ref={logoInputRef} onChange={handleLogoUpload} className="hidden" />
-                        <div className="flex gap-3 items-center">
-                          <button
-                            type="button"
-                            onClick={() => logoInputRef.current?.click()}
-                            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-none text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all shrink-0"
-                          >
-                            <Upload size={14} className="stroke-[2.5]" /> Upload Image
-                          </button>
-                          <input 
-                            type="text" 
-                            value={logoUrl}
-                            onChange={e => {
-                              setLogoUrl(e.target.value);
-                              updateSettings({ logoUrl: e.target.value });
-                            }}
-                            placeholder="https://... or paste image URL / upload file" 
-                            className="flex-1 bg-surface-2 dark:bg-surface border-2 border-black dark:border-border rounded-none px-4 py-2.5 text-xs md:text-sm font-medium focus:bg-white dark:focus:bg-surface-2 text-black dark:text-foreground focus:outline-none shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]"
-                          />
-                          {logoUrl && (
-                            <div className="w-10 h-10 rounded-none overflow-hidden border-2 border-black dark:border-border shrink-0 shadow-[1.5px_1.5px_0px_#000000]">
-                              <img src={logoUrl} alt="Logo preview" className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      {/* Logo upload removed per user request */}
                       <div>
                         <label className="block text-xs font-heading font-black text-black dark:text-foreground uppercase tracking-wider mb-1.5">Custom Studio Tone Color (Hex)</label>
                         <div className="flex gap-3">

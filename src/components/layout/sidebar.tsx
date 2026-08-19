@@ -93,15 +93,6 @@ export function Sidebar() {
         {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
-      {/* Hidden file picker for logo change */}
-      <input
-        type="file"
-        accept="image/*"
-        ref={logoFileInputRef}
-        onChange={handleLogoUpload}
-        className="hidden"
-      />
-
       {/* Sidebar */}
       <AnimatePresence mode="wait">
         {isOpen && (
@@ -116,18 +107,9 @@ export function Sidebar() {
             <div className="p-4 border-b-4 border-black dark:border-border flex items-center justify-between bg-white dark:bg-card">
               <div className="flex items-center gap-2.5">
                 <div 
-                  onClick={() => logoFileInputRef.current?.click()}
-                  className="relative w-8 h-8 bg-black dark:bg-primary text-white dark:text-primary-foreground flex items-center justify-center font-heading font-black text-base border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] overflow-hidden cursor-pointer group shrink-0"
-                  title="คลิกเพื่อเปลี่ยนรูปภาพโลโก้ / Click to change logo"
+                  className="relative w-8 h-8 bg-white flex items-center justify-center border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] overflow-hidden shrink-0"
                 >
-                  {mounted && settings.logoUrl ? (
-                    <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-cover" />
-                  ) : (
-                    <span>★</span>
-                  )}
-                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Upload size={12} className="text-white stroke-[3]" />
-                  </div>
+                  <img src="/logo_star.jpg" alt="Logo" className="w-full h-full object-cover" />
                 </div>
 
                 <Link href="/" className="flex flex-col group">
