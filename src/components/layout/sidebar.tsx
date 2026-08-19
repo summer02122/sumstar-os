@@ -11,7 +11,7 @@ import { processAndCompressImage } from "@/lib/imageUtils";
 import Swal from "sweetalert2";
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const logoFileInputRef = React.useRef<HTMLInputElement>(null);
@@ -22,8 +22,8 @@ export function Sidebar() {
 
   React.useEffect(() => {
     setMounted(true);
-    if (window.innerWidth < 768) {
-      setIsOpen(false);
+    if (window.innerWidth >= 768) {
+      setIsOpen(true);
     }
   }, []);
 

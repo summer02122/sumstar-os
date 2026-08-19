@@ -608,7 +608,7 @@ export default function TodoPage() {
   if (!isLoaded) return null;
 
   return (
-    <main className="flex-1 overflow-y-auto bg-background p-6 md:p-8 font-sans">
+    <main className="flex-1 overflow-y-auto bg-background p-4 md:p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-6">
 
         {/* Header */}

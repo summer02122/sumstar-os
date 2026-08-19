@@ -382,25 +382,25 @@ export default function ChatPage() {
   const colors = getAgentColor(agentKey);
 
   return (
-    <main className="flex-1 flex overflow-hidden h-screen bg-background">
-      {/* Sidebar: Agent Selector */}
-      <aside className="w-64 shrink-0 bg-surface border-r-4 border-black flex flex-col">
-        <div className="p-4 border-b-4 border-black bg-white">
-          <h1 className="font-heading font-black text-black text-base uppercase tracking-tight flex items-center gap-2">
-            <MessageSquare size={18} className="stroke-[2.5]" />
+    <main className="flex-1 flex flex-col md:flex-row overflow-hidden bg-background h-full">
+      {/* Sidebar / Topbar: Agent Selector */}
+      <aside className="w-full md:w-64 shrink-0 bg-surface md:border-r-4 border-b-4 md:border-b-0 border-black flex flex-col">
+        <div className="p-3 md:p-4 border-b-4 border-black bg-white">
+          <h1 className="font-heading font-black text-black text-sm md:text-base uppercase tracking-tight flex items-center gap-2">
+            <MessageSquare size={16} className="stroke-[2.5]" />
             Direct Studio Chat
           </h1>
-          <p className="text-[11px] font-bold text-black/70 mt-1 uppercase">TALK 1-ON-1 WITH AGENTS</p>
+          <p className="hidden md:block text-[11px] font-bold text-black/70 mt-1 uppercase">TALK 1-ON-1 WITH AGENTS</p>
         </div>
 
-        <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
+        <nav className="flex-none md:flex-1 p-3 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto custom-scrollbar">
           {!initialized ? (
-            <div className="flex items-center justify-center py-8 text-black">
+            <div className="flex items-center justify-center py-4 md:py-8 text-black w-full">
               <Loader2 size={20} className="animate-spin" />
             </div>
           ) : agentList.length === 0 ? (
-            <p className="text-xs font-bold text-black text-center py-8 px-2">
-              ไม่พบ Agent ในระบบ<br />กรุณาไปหน้า Settings เพื่อเพิ่ม Agent หรือรีเฟรชหน้าเว็บ
+            <p className="text-xs font-bold text-black text-center py-4 md:py-8 px-2 w-full">
+              ไม่พบ Agent ในระบบ<br className="hidden md:block" />กรุณาไปหน้า Settings
             </p>
           ) : (
             agentList.map((agent) => {
@@ -415,14 +415,14 @@ export default function ChatPage() {
                   onClick={() => setSelectedAgent(agent)}
                   whileHover={{ x: 2, rotate: -0.5 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] ${
+                  className={`min-w-[140px] md:min-w-0 md:w-full flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
                     isActive
-                      ? `${aColors.bg} shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
+                      ? `${aColors.bg} shadow-[3px_3px_0px_#000000] md:shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
                       : "bg-white hover:bg-accent"
                   }`}
                 >
-                  <div className="relative">
-                    <div className="w-9 h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-lg shadow-[1.5px_1.5px_0px_#000000]">
+                  <div className="relative shrink-0">
+                    <div className="w-7 h-7 md:w-9 md:h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-sm md:text-lg shadow-[1.5px_1.5px_0px_#000000]">
                       {agent.imageUrl ? (
                         <img src={agent.imageUrl} alt={agent.name} className="w-full h-full object-cover" />
                       ) : (
@@ -430,9 +430,14 @@ export default function ChatPage() {
                       )}
                     </div>
                   </div>
+                  
                   <div className="flex-1 min-w-0">
-                    <p className="font-heading font-black text-xs uppercase text-black">{agent.name}</p>
-                    <p className="text-[10px] font-bold text-black/70 uppercase truncate">{agent.role}</p>
+                    <div className="font-heading font-black text-black text-xs md:text-sm uppercase leading-none truncate">
+                      {agent.name}
+                    </div>
+                    <div className="text-[9px] md:text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
+                      {agent.role}
+                    </div>
                   </div>
                   {msgCount > 0 && (
                     <span className="text-[10px] font-heading font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-none border border-black">
