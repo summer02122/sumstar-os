@@ -22,6 +22,9 @@ export function Sidebar() {
 
   React.useEffect(() => {
     setMounted(true);
+    if (window.innerWidth < 768) {
+      setIsOpen(false);
+    }
   }, []);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +96,19 @@ export function Sidebar() {
         {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-black/60 z-30 md:hidden backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <AnimatePresence mode="wait">
         {isOpen && (
@@ -101,7 +117,7 @@ export function Sidebar() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -280, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="w-64 border-r-4 border-black dark:border-border bg-surface dark:bg-card h-screen sticky top-0 flex flex-col z-40 shrink-0 font-sans shadow-[4px_0px_0px_#000000] dark:shadow-[4px_0px_0px_var(--border)]"
+            className="w-64 border-r-4 border-black dark:border-border bg-surface dark:bg-card h-screen fixed md:sticky top-0 left-0 flex flex-col z-40 shrink-0 font-sans shadow-[4px_0px_0px_#000000] dark:shadow-[4px_0px_0px_var(--border)]"
           >
             {/* Header */}
             <div className="p-4 border-b-4 border-black dark:border-border flex items-center justify-between bg-white dark:bg-card">
@@ -138,6 +154,9 @@ export function Sidebar() {
                   <motion.div key={item.href} whileHover={{ x: 3 }} whileTap={{ scale: 0.98 }}>
                     <Link
                       href={item.href}
+                      onClick={() => {
+                        if (window.innerWidth < 768) setIsOpen(false);
+                      }}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-none text-xs uppercase font-heading tracking-wider transition-all ${
                         isActive
                           ? "bg-white text-black dark:bg-primary dark:text-primary-foreground font-black shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)] border-2 border-black dark:border-border rotate-[-1deg]"

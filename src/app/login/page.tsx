@@ -38,8 +38,8 @@ export default function LoginPage() {
         timerProgressBar: true,
       });
 
-      router.push("/");
-      router.refresh();
+      // Force a hard reload to ensure middleware catches the new cookie session
+      window.location.href = "/";
     } catch (err: any) {
       setError(err.message || "Authentication failed");
     } finally {
