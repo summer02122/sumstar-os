@@ -88,9 +88,17 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
-        <nav className="bg-surface dark:bg-card border-2 border-black dark:border-border shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_var(--border)] rounded-full flex items-center justify-between px-2 py-1.5">
+      {/* Mobile toggle (Top Left) */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Mobile Bottom Nav (Flush) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface dark:bg-card border-t-4 border-black dark:border-border px-4 py-2 pb-safe">
+        <nav className="flex items-center justify-between max-w-sm mx-auto">
           {navItems.slice(0, 4).map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -115,14 +123,6 @@ export function Sidebar() {
               </Link>
             );
           })}
-          
-          {/* Menu Toggle */}
-          <button
-            onClick={() => setIsOpen(true)}
-            className="relative flex flex-col items-center justify-center w-12 h-12 rounded-full text-black/60 dark:text-foreground/60 hover:text-black dark:hover:text-foreground transition-all"
-          >
-            <Menu size={20} className="stroke-[2]" />
-          </button>
         </nav>
       </div>
 
