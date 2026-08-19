@@ -88,13 +88,43 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {/* Mobile Bottom Nav */}
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
+        <nav className="bg-surface dark:bg-card border-2 border-black dark:border-border shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_var(--border)] rounded-full flex items-center justify-between px-2 py-1.5">
+          {navItems.slice(0, 4).map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all ${
+                  isActive ? "text-primary-foreground" : "text-black/60 dark:text-foreground/60 hover:text-black dark:hover:text-foreground"
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="mobileNavActive"
+                    className="absolute inset-0 bg-primary border-2 border-black dark:border-border rounded-full shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]"
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  />
+                )}
+                <item.icon size={20} className={`relative z-10 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
+                <span className={`text-[8px] font-heading font-black mt-0.5 relative z-10 uppercase ${isActive ? 'block' : 'hidden'}`}>
+                  {item.label.split(' ')[0]}
+                </span>
+              </Link>
+            );
+          })}
+          
+          {/* Menu Toggle */}
+          <button
+            onClick={() => setIsOpen(true)}
+            className="relative flex flex-col items-center justify-center w-12 h-12 rounded-full text-black/60 dark:text-foreground/60 hover:text-black dark:hover:text-foreground transition-all"
+          >
+            <Menu size={20} className="stroke-[2]" />
+          </button>
+        </nav>
+      </div>
 
       {/* Mobile backdrop */}
       <AnimatePresence>
@@ -140,9 +170,10 @@ export function Sidebar() {
               
               <button 
                 onClick={() => setIsOpen(false)}
-                className="hidden md:flex p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-none text-black dark:text-foreground transition-colors border border-transparent hover:border-black dark:hover:border-border"
+                className="flex p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-none text-black dark:text-foreground transition-colors border border-transparent hover:border-black dark:hover:border-border"
               >
-                <Menu size={18} />
+                <Menu size={18} className="hidden md:block" />
+                <X size={20} className="md:hidden stroke-[2.5]" />
               </button>
             </div>
 

@@ -35,7 +35,7 @@ export default function RootLayout({
       <body className={`${archivoBlack.variable} ${spaceGrotesk.variable} ${syne.variable} ${ibmPlexSansThai.variable} font-sans flex antialiased h-screen overflow-hidden bg-background text-foreground`}>
         <ThemeProvider>
           <Sidebar />
-          <div className="flex-1 overflow-hidden flex flex-col pt-14 md:pt-0 relative">
+          <div className="flex-1 overflow-hidden flex flex-col pb-24 md:pb-0 relative">
             {children}
           </div>
         </ThemeProvider>
