@@ -89,12 +89,14 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile toggle (Top Left) */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
+        >
+          <Menu size={20} />
+        </button>
+      )}
 
       {/* Mobile Bottom Nav (Floating Pill) */}
       {!isOpen && (
