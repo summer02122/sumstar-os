@@ -254,8 +254,11 @@ export default function ChatPage() {
         console.warn("Notice: chat history fetch notice:", e?.message || e);
       }
     }
-
     loadAgentMessages();
+
+    // Auto-refresh when tab gets focused (fixes 2-tabs out of sync issue)
+    window.addEventListener("focus", loadAgentMessages);
+    return () => window.removeEventListener("focus", loadAgentMessages);
   }, [selectedAgent?.id]);
 
   useEffect(() => {
