@@ -608,8 +608,8 @@ export default function TodoPage() {
   if (!isLoaded) return null;
 
   return (
-    <main className="flex-1 overflow-y-auto bg-background p-4 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <main className="flex-1 overflow-y-auto bg-background p-3 md:p-8 font-sans">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6 mt-2 md:mt-0">
 
         {/* Header */}
         <header className="border-b-4 border-black dark:border-border pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -619,10 +619,10 @@ export default function TodoPage() {
                 SINCARE EXECUTIVE ASSISTANT
               </span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-heading font-black uppercase tracking-tight text-black dark:text-foreground">
+            <h1 className="text-2xl md:text-5xl font-heading font-black uppercase tracking-tight text-black dark:text-foreground">
               To-Do & Scratchpad
             </h1>
-            <p className="text-xs md:text-sm font-bold text-black/70 dark:text-foreground/70 uppercase tracking-wider mt-0.5">
+            <p className="text-[10px] md:text-sm font-bold text-black/70 dark:text-foreground/70 uppercase tracking-wider mt-0.5 md:mt-1">
               ระบบจัดการงาน ตารางเวลา และสมุดบันทึกด่วน โดยมีเลขา SINCARE ช่วยดูแล
             </p>
           </div>
@@ -632,49 +632,49 @@ export default function TodoPage() {
             <button
               onClick={handleDailyBriefing}
               disabled={isAiLoading}
-              className="flex items-center gap-1.5 bg-white dark:bg-card text-black dark:text-foreground px-3.5 py-2 text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2.5px_2.5px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:bg-accent active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 bg-white dark:bg-card text-black dark:text-foreground px-2.5 md:px-3.5 py-1.5 md:py-2 text-[10px] md:text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:bg-accent active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50"
             >
-              <Sparkles size={14} className="stroke-[2.5] text-amber-500" />
-              <span>SINCARE Briefing</span>
+              <Sparkles size={12} className="stroke-[2.5] text-amber-500 md:w-3.5 md:h-3.5" />
+              <span>Briefing</span>
             </button>
             <button
               onClick={handleArchiveToMemory}
               disabled={isAiLoading || completedCount === 0}
-              className="flex items-center gap-1.5 bg-white dark:bg-card text-black dark:text-foreground px-3.5 py-2 text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2.5px_2.5px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:bg-accent active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 bg-white dark:bg-card text-black dark:text-foreground px-2.5 md:px-3.5 py-1.5 md:py-2 text-[10px] md:text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:bg-accent active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50"
               title="สรุปงานที่ทำเสร็จแล้วลงใน Central Memory"
             >
-              <BookmarkCheck size={14} className="stroke-[2.5] text-emerald-600" />
-              <span>Archive Memory</span>
+              <BookmarkCheck size={12} className="stroke-[2.5] text-emerald-600 md:w-3.5 md:h-3.5" />
+              <span>Archive</span>
             </button>
 
             {activeTab === "todos" ? (
               <button
                 onClick={() => setShowAddTaskModal(true)}
-                className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2.5px_2.5px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all"
               >
-                <Plus size={15} className="stroke-[3]" />
-                <span>Add Task</span>
+                <Plus size={12} className="stroke-[3] md:w-3.5 md:h-3.5" />
+                <span>Task</span>
               </button>
             ) : (
               <button
                 onClick={() => openNoteModal()}
-                className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2.5px_2.5px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2.5px_2.5px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all"
               >
-                <Plus size={15} className="stroke-[3]" />
-                <span>New Note</span>
+                <Plus size={12} className="stroke-[3] md:w-3.5 md:h-3.5" />
+                <span>Note</span>
               </button>
             )}
           </div>
         </header>
 
         {/* SINCARE Natural Language Smart Input Bar */}
-        <section className="bg-white dark:bg-card border-4 border-black dark:border-border p-4 shadow-[6px_6px_0px_#000000] dark:shadow-[6px_6px_0px_var(--border)]">
+        <section className="bg-white dark:bg-card border-3 md:border-4 border-black dark:border-border p-3 md:p-4 shadow-[4px_4px_0px_#000000] md:shadow-[6px_6px_0px_#000000] dark:shadow-[6px_6px_0px_var(--border)]">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 rounded-none bg-primary text-primary-foreground border border-black flex items-center justify-center text-xs font-black">
+            <div className="w-5 h-5 md:w-6 md:h-6 rounded-none bg-primary text-primary-foreground border border-black flex items-center justify-center text-[10px] md:text-xs font-black">
               📑
             </div>
-            <span className="font-heading font-black text-xs uppercase text-black dark:text-foreground">
-              สั่งงานเลขา SINCARE ด้วยภาษาพูด (AI Natural Language Input)
+            <span className="font-heading font-black text-[10px] md:text-xs uppercase text-black dark:text-foreground">
+              สั่งงานเลขา SINCARE ด้วยภาษาพูด (AI Input)
             </span>
           </div>
 
@@ -683,18 +683,18 @@ export default function TodoPage() {
               type="text"
               value={nlInput}
               onChange={(e) => setNlInput(e.target.value)}
-              placeholder="เช่น 'พรุ่งนี้บ่าย 2 เตือนให้โทรตามงานกับฝ่าย Marketing เรื่องแบนเนอร์ใหม่ด้วย ด่วนมาก'"
-              className="flex-1 bg-surface-2 dark:bg-surface border-2 border-black dark:border-border px-3.5 py-2.5 text-xs md:text-sm font-medium text-black dark:text-foreground focus:bg-white dark:focus:bg-surface-2 focus:outline-none shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]"
+              placeholder="เช่น 'พรุ่งนี้บ่าย 2 โทรหาลูกค้า'"
+              className="flex-1 bg-surface-2 dark:bg-surface border-2 border-black dark:border-border px-3 md:px-3.5 py-2 md:py-2.5 text-[10px] md:text-sm font-medium text-black dark:text-foreground focus:bg-white dark:focus:bg-surface-2 focus:outline-none shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]"
             />
             <button
               type="submit"
               disabled={isAiLoading || !nlInput.trim()}
-              className="flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-none text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 shrink-0"
+              className="flex items-center justify-center gap-1.5 md:gap-2 bg-primary text-primary-foreground px-4 md:px-5 py-2 md:py-2.5 rounded-none text-[10px] md:text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] hover:opacity-90 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 shrink-0"
             >
               {isAiLoading ? (
-                <RefreshCw size={14} className="animate-spin" />
+                <RefreshCw size={12} className="animate-spin md:w-3.5 md:h-3.5" />
               ) : (
-                <Sparkles size={14} className="stroke-[2.5]" />
+                <Sparkles size={12} className="stroke-[2.5] md:w-3.5 md:h-3.5" />
               )}
               <span>SINCARE จัดให้</span>
             </button>

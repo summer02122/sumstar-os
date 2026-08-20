@@ -127,17 +127,17 @@ export default function CommandCenter() {
   const doneTasks = parentTasks.filter(t => t.status === 'done');
 
   return (
-    <main className="flex-1 overflow-y-auto bg-background p-4 md:p-8 flex justify-center font-sans">
-      <div className="w-full max-w-3xl space-y-8 mt-6">
+    <main className="flex-1 overflow-y-auto bg-background p-3 md:p-8 flex justify-center font-sans">
+      <div className="w-full max-w-3xl space-y-6 md:space-y-8 mt-4 md:mt-6">
         
         {/* Command Form Container */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-card border-4 border-black dark:border-border rounded-none shadow-[8px_8px_0px_#000000] dark:shadow-[8px_8px_0px_var(--border)] relative p-4 md:p-6 pt-10 rotate-[-0.75deg] hover:rotate-0 transition-transform duration-200"
+          className="bg-white dark:bg-card border-4 border-black dark:border-border rounded-none shadow-[4px_4px_0px_#000000] md:shadow-[8px_8px_0px_#000000] dark:shadow-[8px_8px_0px_var(--border)] relative p-4 md:p-6 pt-10 rotate-[-0.75deg] hover:rotate-0 transition-transform duration-200"
         >
           {/* Top Clip Badge */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-black text-white dark:bg-primary dark:text-primary-foreground font-heading font-black text-xs uppercase tracking-widest border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-black text-white dark:bg-primary dark:text-primary-foreground font-heading font-black text-[10px] md:text-xs uppercase tracking-widest border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] whitespace-nowrap">
             COMMAND CENTER
           </div>
 
@@ -147,25 +147,25 @@ export default function CommandCenter() {
               placeholder="What needs doing?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-white dark:bg-surface border-b-3 border-black dark:border-border px-6 py-4 text-black dark:text-foreground placeholder:text-black/50 dark:placeholder:text-foreground/50 focus:outline-none font-heading font-black text-lg md:text-xl uppercase tracking-tight"
+              className="bg-white dark:bg-surface border-b-3 border-black dark:border-border px-4 md:px-6 py-3 md:py-4 text-black dark:text-foreground placeholder:text-black/50 dark:placeholder:text-foreground/50 focus:outline-none font-heading font-black text-base md:text-xl uppercase tracking-tight"
             />
             <textarea 
               placeholder="Details (optional) — context, link, success criteria..."
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              className="bg-surface-2 dark:bg-surface-2 px-6 py-4 text-black dark:text-foreground placeholder:text-black/50 dark:placeholder:text-foreground/50 focus:outline-none text-sm font-medium resize-none h-28 leading-relaxed"
+              className="bg-surface-2 dark:bg-surface-2 px-4 md:px-6 py-3 md:py-4 text-black dark:text-foreground placeholder:text-black/50 dark:placeholder:text-foreground/50 focus:outline-none text-xs md:text-sm font-medium resize-none h-20 md:h-28 leading-relaxed"
             />
             
-            <div className="px-4 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t-2 border-black dark:border-border bg-white dark:bg-card">
+            <div className="px-4 md:px-6 py-3 md:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t-2 border-black dark:border-border bg-white dark:bg-card">
               <div className="flex items-center gap-4 flex-wrap">
                 {/* Tag Selector */}
                 <div className="relative">
                   <button 
                     type="button"
                     onClick={() => setIsTagOpen(!isTagOpen)}
-                    className="flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black dark:text-foreground bg-surface dark:bg-surface-2 hover:bg-accent hover:text-black border-2 border-black dark:border-border px-3 py-1.5 rounded-none shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                    className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs font-heading font-black uppercase tracking-wider text-black dark:text-foreground bg-surface dark:bg-surface-2 hover:bg-accent hover:text-black border-2 border-black dark:border-border px-2 md:px-3 py-1 md:py-1.5 rounded-none shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] active:translate-x-0.5 active:translate-y-0.5 transition-all"
                   >
-                    <Tag size={13} className="stroke-[2.5]" />
+                    <Tag size={12} className="stroke-[2.5]" />
                     {selectedTag}
                     <ChevronDown size={14} className="stroke-[2.5]" />
                   </button>
@@ -188,25 +188,25 @@ export default function CommandCenter() {
 
                 {/* Toggle Auto-Execute */}
                 <label 
-                  className="flex items-center gap-2 cursor-pointer group select-none"
+                  className="flex items-center gap-1.5 md:gap-2 cursor-pointer group select-none"
                   onClick={(e) => {
                     e.preventDefault();
                     setAutoExecute(!autoExecute);
                   }}
                 >
-                  <div className={`w-10 h-5 border-2 border-black dark:border-border rounded-none p-0.5 transition-colors shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] ${autoExecute ? 'bg-primary' : 'bg-white dark:bg-surface'}`}>
-                    <div className={`w-3.5 h-3.5 border border-black dark:border-border transition-transform ${autoExecute ? 'translate-x-4 bg-accent' : 'translate-x-0 bg-primary'}`} />
+                  <div className={`w-8 md:w-10 h-4 md:h-5 border-2 border-black dark:border-border rounded-none p-0.5 transition-colors shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] ${autoExecute ? 'bg-primary' : 'bg-white dark:bg-surface'}`}>
+                    <div className={`w-2.5 md:w-3.5 h-2.5 md:h-3.5 border border-black dark:border-border transition-transform ${autoExecute ? 'translate-x-3 md:translate-x-4 bg-accent' : 'translate-x-0 bg-primary'}`} />
                   </div>
-                  <span className="text-xs font-heading font-black uppercase tracking-wider text-black dark:text-foreground group-hover:opacity-80 transition-opacity">Auto-Delegate</span>
+                  <span className="text-[10px] md:text-xs font-heading font-black uppercase tracking-wider text-black dark:text-foreground group-hover:opacity-80 transition-opacity">Auto-Delegate</span>
                 </label>
               </div>
 
               <button 
                 type="submit"
                 disabled={!title.trim() || isDelegating}
-                className="bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground font-heading font-black uppercase tracking-wider text-xs px-6 py-2.5 rounded-none border-2 border-black dark:border-border shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 w-full sm:w-auto shrink-0"
+                className="bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground font-heading font-black uppercase tracking-wider text-[10px] md:text-xs px-4 md:px-6 py-2 md:py-2.5 rounded-none border-2 border-black dark:border-border shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 w-full sm:w-auto shrink-0"
               >
-                {isDelegating ? <Loader2 size={16} className="animate-spin" /> : null}
+                {isDelegating ? <Loader2 size={14} className="animate-spin" /> : null}
                 {isDelegating ? "CEO THINKING..." : "ADD TASK +"}
               </button>
             </div>
@@ -219,7 +219,7 @@ export default function CommandCenter() {
         )}
 
         {/* Main Board Container */}
-        <div className="bg-white dark:bg-card border-4 border-black dark:border-border rounded-none shadow-[8px_8px_0px_#000000] dark:shadow-[8px_8px_0px_var(--border)] p-6 md:p-8 mt-8 space-y-6 rotate-[0.5deg]">
+        <div className="bg-white dark:bg-card border-4 border-black dark:border-border rounded-none shadow-[4px_4px_0px_#000000] md:shadow-[8px_8px_0px_#000000] dark:shadow-[8px_8px_0px_var(--border)] p-4 md:p-8 mt-6 md:mt-8 space-y-6 rotate-[0.5deg]">
           {/* Reminders List */}
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b-3 border-black dark:border-border pb-2">
@@ -355,38 +355,38 @@ function TaskItem({
         #TASK
       </div>
 
-      <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <button 
               onClick={() => setExpanded(!expanded)}
               className="text-black hover:bg-black/10 p-1 border border-black rounded-none transition-colors"
             >
-              <ChevronRight size={16} className={`stroke-[3] transition-transform ${expanded ? 'rotate-90' : ''}`} />
+              <ChevronRight size={14} className={`stroke-[3] md:w-4 md:h-4 w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`} />
             </button>
             <h3 className={`font-heading font-black text-sm md:text-base uppercase tracking-tight truncate ${isDone ? 'line-through opacity-60 text-black' : 'text-black'}`}>
               {task.title}
             </h3>
             {task.tag && (
-              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-heading font-black uppercase bg-white border-2 border-black px-2 py-0.5 rounded-none text-black shadow-[1.5px_1.5px_0px_#000000]">
+              <span className="hidden sm:inline-flex items-center gap-1 text-[9px] md:text-[10px] font-heading font-black uppercase bg-white border-2 border-black px-1.5 md:px-2 py-0.5 rounded-none text-black shadow-[1.5px_1.5px_0px_#000000]">
                 <Tag size={9} className="stroke-[3]" /> {task.tag}
               </span>
             )}
           </div>
           {task.details && expanded && (
-            <div className="mt-3 ml-8 text-xs font-medium text-black/90 whitespace-pre-wrap bg-white/70 border-2 border-black p-3 rounded-none shadow-[2px_2px_0px_#000000]">
+            <div className="mt-3 ml-7 md:ml-8 text-[10px] md:text-xs font-medium text-black/90 whitespace-pre-wrap bg-white/70 border-2 border-black p-2.5 md:p-3 rounded-none shadow-[2px_2px_0px_#000000]">
               {task.details}
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-3 ml-8 md:ml-0 shrink-0">
-          <span className="text-[10px] font-heading font-black px-2.5 py-1 rounded-none uppercase tracking-wider border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000]">
+        <div className="flex items-center gap-2 md:gap-3 ml-7 md:ml-0 shrink-0">
+          <span className="text-[9px] md:text-[10px] font-heading font-black px-2 md:px-2.5 py-1 rounded-none uppercase tracking-wider border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000]">
             {task.status.replace('-', ' ')}
           </span>
 
-          <button onClick={onDelete} className="p-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_#000000] text-black hover:bg-[#FF0055] hover:text-white rounded-none active:translate-x-0.5 active:translate-y-0.5 transition-all">
-            <Trash2 size={14} className="stroke-[2.5]" />
+          <button onClick={onDelete} className="p-1 md:p-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_#000000] text-black hover:bg-[#FF0055] hover:text-white rounded-none active:translate-x-0.5 active:translate-y-0.5 transition-all">
+            <Trash2 size={13} className="stroke-[2.5]" />
           </button>
         </div>
       </div>
@@ -398,11 +398,11 @@ function TaskItem({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="border-t-3 border-black dark:border-border px-5 py-4 ml-6 mr-3 mb-3 border-l-4 border-l-black dark:border-l-border overflow-hidden bg-white dark:bg-card shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)]"
+            className="border-t-3 border-black dark:border-border px-3 md:px-5 py-3 md:py-4 ml-4 md:ml-6 mr-2 md:mr-3 mb-3 border-l-4 border-l-black dark:border-l-border overflow-hidden bg-white dark:bg-card shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)]"
           >
-            <div className="flex items-center justify-between mb-3 border-b-2 border-black dark:border-border pb-2">
-              <h4 className="text-xs font-heading font-black text-black dark:text-foreground flex items-center gap-2 uppercase tracking-wider">
-                <ListTodo size={14} className="stroke-[2.5]" /> CEO Breakdown Plan
+            <div className="flex items-center justify-between mb-2 md:mb-3 border-b-2 border-black dark:border-border pb-2">
+              <h4 className="text-[10px] md:text-xs font-heading font-black text-black dark:text-foreground flex items-center gap-1.5 md:gap-2 uppercase tracking-wider">
+                <ListTodo size={12} className="stroke-[2.5]" /> CEO Breakdown Plan
               </h4>
               {subtasks.length > 0 && task.status === 'pending-review' && (
                 <button 
@@ -412,7 +412,7 @@ function TaskItem({
                     await regenerateCEOPlan(task.id);
                     setIsRegenerating(false);
                   }}
-                  className="text-[10px] font-heading font-black uppercase flex items-center gap-1.5 text-black dark:text-foreground hover:bg-accent hover:text-black transition-colors disabled:opacity-50 bg-white dark:bg-surface-2 px-2.5 py-1 rounded-none border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] active:translate-x-0.5 active:translate-y-0.5"
+                  className="text-[9px] md:text-[10px] font-heading font-black uppercase flex items-center gap-1 md:gap-1.5 text-black dark:text-foreground hover:bg-accent hover:text-black transition-colors disabled:opacity-50 bg-white dark:bg-surface-2 px-2 md:px-2.5 py-1 rounded-none border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] active:translate-x-0.5 active:translate-y-0.5"
                 >
                   {(isRegenerating || task.isGenerating) ? <Loader2 size={10} className="animate-spin" /> : <RefreshCw size={10} className="stroke-[2.5]" />}
                   {(isRegenerating || task.isGenerating) ? 'REGENERATING...' : 'REGENERATE'}
@@ -421,13 +421,13 @@ function TaskItem({
             </div>
 
             {task.isGenerating ? (
-              <div className="flex flex-col items-center justify-center p-6 bg-surface dark:bg-surface-2 rounded-none border-2 border-black dark:border-border border-dashed">
-                <Loader2 size={28} className="animate-spin text-black dark:text-foreground mb-2 stroke-[2.5]" />
-                <span className="text-xs font-heading font-black uppercase text-black dark:text-foreground">CEO is thinking...</span>
-                <span className="text-[11px] text-black/70 dark:text-foreground/70 mt-0.5">Analyzing mission and breaking down tasks</span>
+              <div className="flex flex-col items-center justify-center p-4 md:p-6 bg-surface dark:bg-surface-2 rounded-none border-2 border-black dark:border-border border-dashed">
+                <Loader2 size={24} className="animate-spin text-black dark:text-foreground mb-2 stroke-[2.5]" />
+                <span className="text-[10px] md:text-xs font-heading font-black uppercase text-black dark:text-foreground">CEO is thinking...</span>
+                <span className="text-[9px] md:text-[11px] text-black/70 dark:text-foreground/70 mt-0.5">Analyzing mission and breaking down tasks</span>
               </div>
             ) : subtasks.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-4 bg-surface dark:bg-surface-2 rounded-none border-2 border-black dark:border-border border-dashed text-black dark:text-foreground">
+              <div className="flex flex-col items-center justify-center p-3 md:p-4 bg-surface dark:bg-surface-2 rounded-none border-2 border-black dark:border-border border-dashed text-black dark:text-foreground">
                 <span className="text-xs font-bold mb-2">No plan generated or generation failed.</span>
                 <button 
                   disabled={isRegenerating}
