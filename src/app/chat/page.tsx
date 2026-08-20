@@ -556,17 +556,17 @@ export default function ChatPage() {
           </div>
 
           {/* Input Area */}
-          <div className="px-6 py-4 border-t-4 border-black bg-white">
-            <div className="flex items-end gap-3 max-w-4xl mx-auto">
-              <div className="flex-1 bg-surface-2 border-3 border-black rounded-none px-4 py-3 shadow-[3px_3px_0px_#000000] focus-within:bg-white transition-colors">
+          <div className="px-3 py-3 md:px-6 md:py-4 border-t-3 md:border-t-4 border-black bg-white">
+            <div className="flex items-end gap-2 max-w-4xl mx-auto">
+              <div className="flex-1 bg-surface-2 border-2 md:border-3 border-black rounded-none px-3 py-2 md:px-4 md:py-2.5 shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000] focus-within:bg-white transition-colors">
                 <textarea
                   ref={textareaRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={`พิมพ์ข้อความถึง ${selectedAgent.name}... (Enter ส่ง, Shift+Enter ขึ้นบรรทัดใหม่)`}
+                  placeholder={`พิมพ์ข้อความถึง ${selectedAgent.name}...`}
                   rows={1}
-                  className="w-full bg-transparent text-black placeholder:text-black/50 focus:outline-none text-xs md:text-sm font-medium resize-none leading-relaxed"
+                  className="w-full bg-transparent text-black placeholder:text-black/50 focus:outline-none text-[11px] md:text-sm font-medium resize-none leading-relaxed py-0.5"
                 />
               </div>
               <motion.button
@@ -574,16 +574,16 @@ export default function ChatPage() {
                 disabled={!input.trim() || isLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-none bg-primary text-primary-foreground border-2 border-black flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed shadow-[3px_3px_0px_#000000] hover:shadow-[5px_5px_0px_#000000] hover:bg-primary/90 active:translate-x-0.5 active:translate-y-0.5 transition-all shrink-0"
+                className="w-9 h-9 md:w-11 md:h-11 mb-0.5 rounded-none bg-primary text-primary-foreground border-2 border-black flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000] hover:shadow-[3px_3px_0px_#000000] hover:bg-primary/90 active:translate-x-0.5 active:translate-y-0.5 transition-all shrink-0"
               >
                 {isLoading ? (
-                  <Loader2 size={18} className="animate-spin stroke-[2.5]" />
+                  <Loader2 size={16} className="animate-spin stroke-[2.5] md:w-[18px] md:h-[18px]" />
                 ) : (
-                  <Send size={18} className="stroke-[2.5]" />
+                  <Send size={16} className="stroke-[2.5] md:w-[18px] md:h-[18px]" />
                 )}
               </motion.button>
             </div>
-            <p className="text-center text-[10px] font-bold text-black/60 mt-2 uppercase tracking-wider">
+            <p className="text-center text-[9px] md:text-[10px] font-bold text-black/50 mt-2 uppercase tracking-wider">
               SumStar OS Creative Studio Engine
             </p>
           </div>
