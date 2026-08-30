@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action, input, todos, task } = await req.json();
+    const { action, input, todos, task, notes } = await req.json();
 
     // Fetch user API keys
     const { data: settings } = await supabase
@@ -36,20 +36,38 @@ export async function POST(req: NextRequest) {
 Your duties: Managing todos, organizing schedules, prioritizing work, and maintaining flawless documentation.
 Tone: Polite, efficient, supportive, and executive (ใช้ภาษาไทยที่สุภาพ เช่น ค่ะ/นะคะ/เรียบร้อยค่ะ).`;
 
-    if (action === 'parse_todo') {
-      // Natural Language parsing of a todo item
-      const prompt = `Convert the following user request into a structured Todo item:
-"${input}"
+    if (action === 'parse_todo' || action === 'smart_chat') {
+      const currentTodos = todos || [];
+      const currentNotes = notes || [];
+      
+      const prompt = `You are SINCARE, the polite, highly organized Executive Secretary of SumStar OS.
+The user just sent this request on their To-Do & Scratchpad page: "${input || ''}"
 
 Today's date is: ${new Date().toISOString().split('T')[0]}
+Current To-Do List: ${JSON.stringify(currentTodos.map((t: any) => ({ title: t.title, completed: t.completed, priority: t.priority })), null, 2)}
+
+Your task:
+1. Understand the user's intent.
+2. If they are asking a question about their tasks (e.g. "What do I have left?"), answer them in Thai politely.
+3. If they want to add a Task, extract the details.
+4. If they want to add a Note (Scratchpad), extract the details.
 
 Respond ONLY with a JSON object in this exact format (no markdown code blocks, just raw JSON):
 {
-  "title": "Short, clear action-oriented task title in Thai",
-  "priority": "high" | "medium" | "low",
-  "category": "WORK" | "MEETING" | "URGENT" | "PERSONAL" | "FINANCE" | "STUDIO",
-  "dueDate": "YYYY-MM-DD" or null,
-  "notes": "Any extra details or context"
+  "type": "REPLY_ONLY" | "ADD_TODO" | "ADD_NOTE",
+  "reply": "Your conversational reply to the user (e.g. 'มีงานที่ยังไม่เสร็จ 3 งานค่ะ ได้แก่...' หรือ 'เพิ่มโน้ตให้เรียบร้อยค่ะ' หรือ 'เพิ่มงานใหม่แล้วค่ะ')",
+  "todoData": {
+    "title": "Short action-oriented task title in Thai",
+    "priority": "high" | "medium" | "low",
+    "category": "WORK" | "PERSONAL" | "MEETING",
+    "dueDate": "YYYY-MM-DD" or null,
+    "notes": "Any extra details"
+  },
+  "noteData": {
+    "title": "Title of the note",
+    "content": "Full content of the note",
+    "color": "yellow" | "blue" | "green" | "pink" | "purple"
+  }
 }`;
 
       const resText = await ai.generateText(prompt, sincarePersona);
@@ -58,13 +76,18 @@ Respond ONLY with a JSON object in this exact format (no markdown code blocks, j
         const parsed = JSON.parse(cleaned);
         return NextResponse.json({ result: parsed });
       } catch (err) {
+        // Fallback to simple todo
         return NextResponse.json({
           result: {
-            title: input,
-            priority: 'medium',
-            category: 'WORK',
-            dueDate: null,
-            notes: ''
+            type: "ADD_TODO",
+            reply: "เพิ่มงานใหม่แล้วค่ะ",
+            todoData: {
+              title: input,
+              priority: 'medium',
+              category: 'WORK',
+              dueDate: null,
+              notes: ''
+            }
           }
         });
       }

@@ -382,7 +382,7 @@ export default function TodoPage() {
     }
   };
 
-  // AI Parse Todo via SINCARE
+  // AI Smart Chat (NLP for Todos & Notes)
   const handleAiParse = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!nlInput.trim()) return;
@@ -393,35 +393,72 @@ export default function TodoPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "parse_todo",
-          input: nlInput.trim()
+          action: "smart_chat",
+          input: nlInput.trim(),
+          todos: todos,
+          notes: notes
         })
       });
 
       const data = await res.json();
       if (data.result) {
-        const newTodo: TodoItem = {
-          id: `todo-${Date.now()}`,
-          title: data.result.title || nlInput.trim(),
-          completed: false,
-          priority: data.result.priority || "medium",
-          category: (data.result.category || "WORK").toUpperCase(),
-          dueDate: data.result.dueDate || null,
-          notes: data.result.notes || "",
-          createdAt: Date.now()
-        };
+        const { type, reply, todoData, noteData } = data.result;
 
-        addTodosToDb([newTodo]);
-        setNlInput("");
-        setActiveTab("todos");
-        
+        if (type === "ADD_TODO" && todoData) {
+          const newTodo: TodoItem = {
+            id: `todo-${Date.now()}`,
+            title: todoData.title || nlInput.trim(),
+            completed: false,
+            priority: todoData.priority || "medium",
+            category: (todoData.category || "WORK").toUpperCase(),
+            dueDate: todoData.dueDate || null,
+            notes: todoData.notes || "",
+            createdAt: Date.now()
+          };
+          addTodosToDb([newTodo]);
+          setActiveTab("todos");
+        } else if (type === "ADD_NOTE" && noteData) {
+          // Manually construct the NoteItem and use the supabase flow
+          const newNote: QuickNote = {
+             id: `note-${Date.now()}`, // Temporary ID
+             title: noteData.title || "Untitled",
+             content: noteData.content || "",
+             color: noteData.color || "yellow",
+             isPinned: false,
+             createdAt: Date.now(),
+             updatedAt: Date.now()
+          };
+          
+          // Save note to DB directly since addNotesToDb doesn't exist
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (user) {
+            const { data: newDbNote } = await supabase.from("notes").insert({
+              user_id: user.id,
+              title: newNote.title,
+              content: newNote.content,
+              color: newNote.color,
+              is_pinned: false
+            }).select().single();
+            
+            if (newDbNote) {
+              newNote.id = newDbNote.id;
+              setNotes(prev => [newNote, ...prev]);
+            }
+          }
+          setActiveTab("notes");
+        }
+
+        // Show SINCARE's response to the user
         Swal.fire({
-          icon: "success",
-          title: "SINCARE เพิ่มงานให้แล้วค่ะ!",
-          text: `"${newTodo.title}" (${newTodo.priority.toUpperCase()})`,
-          timer: 1800,
-          showConfirmButton: false
+          title: "SINCARE ตอบกลับ",
+          text: reply || "เรียบร้อยค่ะ",
+          confirmButtonColor: "#000000",
+          confirmButtonText: "รับทราบ"
         });
+
+        setNlInput("");
       }
     } catch (err: any) {
       Swal.fire({
