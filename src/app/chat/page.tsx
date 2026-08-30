@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAgentStore, Agent } from "@/store/agentStore";
 import { createClient } from "@/utils/supabase/client";
-import { Send, Loader2, MessageSquare, Trash2, ChevronRight } from "lucide-react";
+import { Send, Loader2, MessageSquare, Trash2, ChevronRight, ChevronLeft } from "lucide-react";
 
 interface Message {
   role: "user" | "agent";
@@ -387,7 +387,7 @@ export default function ChatPage() {
   return (
     <main className="flex-1 flex flex-col md:flex-row overflow-hidden bg-background h-full">
       {/* Sidebar / Topbar: Agent Selector */}
-      <aside className="w-full md:w-64 shrink-0 bg-surface md:border-r-4 border-b-4 md:border-b-0 border-black flex flex-col">
+      <aside className={`w-full md:w-64 shrink-0 bg-surface md:border-r-4 border-b-4 md:border-b-0 border-black flex-col ${selectedAgent ? 'hidden md:flex' : 'flex flex-1 md:flex-none'}`}>
         <div className="p-3 md:p-4 border-b-4 border-black bg-white">
           <h1 className="font-heading font-black text-black text-sm md:text-base uppercase tracking-tight flex items-center gap-2">
             <MessageSquare size={16} className="stroke-[2.5]" />
@@ -396,7 +396,7 @@ export default function ChatPage() {
           <p className="hidden md:block text-[11px] font-bold text-black/70 mt-1 uppercase">TALK 1-ON-1 WITH AGENTS</p>
         </div>
 
-        <nav className="flex-none md:flex-1 p-3 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
           {!initialized ? (
             <div className="flex items-center justify-center py-4 md:py-8 text-black w-full">
               <Loader2 size={20} className="animate-spin" />
@@ -418,14 +418,14 @@ export default function ChatPage() {
                   onClick={() => setSelectedAgent(agent)}
                   whileHover={{ x: 2, rotate: -0.5 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`min-w-[140px] md:min-w-0 md:w-full flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2 md:py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
+                  className={`w-full flex items-center gap-2 md:gap-3 px-3 py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
                     isActive
-                      ? `${aColors.bg} shadow-[3px_3px_0px_#000000] md:shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
+                      ? `${aColors.bg} shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
                       : "bg-white hover:bg-accent"
                   }`}
                 >
                   <div className="relative shrink-0">
-                    <div className="w-7 h-7 md:w-9 md:h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-sm md:text-lg shadow-[1.5px_1.5px_0px_#000000]">
+                    <div className="w-9 h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-lg shadow-[1.5px_1.5px_0px_#000000]">
                       {agent.imageUrl ? (
                         <img src={agent.imageUrl} alt={agent.name} className="w-full h-full object-cover" />
                       ) : (
@@ -435,10 +435,10 @@ export default function ChatPage() {
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="font-heading font-black text-black text-xs md:text-sm uppercase leading-none truncate">
+                    <div className="font-heading font-black text-black text-sm uppercase leading-none truncate">
                       {agent.name}
                     </div>
-                    <div className="text-[9px] md:text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
+                    <div className="text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
                       {agent.role}
                     </div>
                   </div>
@@ -447,7 +447,7 @@ export default function ChatPage() {
                       {msgCount}
                     </span>
                   )}
-                  {isActive && <ChevronRight size={14} className="text-black stroke-[3] shrink-0" />}
+                  {isActive && <ChevronRight size={14} className="text-black stroke-[3] shrink-0 hidden md:block" />}
                 </motion.button>
               );
             })
@@ -457,7 +457,7 @@ export default function ChatPage() {
 
       {/* Main Chat Area */}
       {!selectedAgent ? (
-        <div className="flex-1 flex items-center justify-center text-black">
+        <div className="hidden md:flex flex-1 items-center justify-center text-black">
           <div className="text-center p-8 bg-white border-4 border-black shadow-[6px_6px_0px_#000000] rounded-none rotate-[-1deg]">
             <p className="text-5xl mb-4">💬</p>
             <p className="font-heading font-black text-xl uppercase">เลือก Agent ที่ต้องการคุย</p>
@@ -467,21 +467,27 @@ export default function ChatPage() {
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Chat Header */}
-          <div className={`px-6 py-4 border-b-4 border-black flex items-center justify-between bg-white`}>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-none bg-accent border-2 border-black overflow-hidden flex items-center justify-center text-xl shadow-[2px_2px_0px_#000000]">
+          <div className="px-3 md:px-6 py-2 md:py-4 border-b-3 md:border-b-4 border-black flex items-center justify-between bg-white shrink-0">
+            <div className="flex items-center gap-2 md:gap-3">
+              <button
+                onClick={() => setSelectedAgent(null)}
+                className="md:hidden flex items-center justify-center w-8 h-8 bg-white border-2 border-black shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 shrink-0"
+              >
+                <ChevronLeft size={20} className="stroke-[3]" />
+              </button>
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-none bg-accent border-2 border-black overflow-hidden flex items-center justify-center text-lg md:text-xl shadow-[2px_2px_0px_#000000]">
                 {selectedAgent.imageUrl ? (
                   <img src={selectedAgent.imageUrl} alt={selectedAgent.name} className="w-full h-full object-cover" />
                 ) : (
                   getAgentEmoji(agentKey)
                 )}
               </div>
-              <div>
-                <p className="font-heading font-black text-base uppercase text-black">{selectedAgent.name}</p>
-                <p className="text-xs font-bold text-black/70 uppercase">{selectedAgent.role}</p>
-              </div>
-              <div className="ml-2 px-2 py-0.5 bg-primary text-primary-foreground font-heading font-black text-[9px] uppercase border border-black shadow-[1.5px_1.5px_0px_#000000]">
-                Online
+              <div className="flex-1 min-w-0">
+                <p className="font-heading font-black text-sm md:text-base uppercase text-black truncate">{selectedAgent.name}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-green-500 border border-black shrink-0"></div>
+                  <p className="text-[9px] md:text-xs font-bold text-black/70 uppercase truncate">{selectedAgent.role}</p>
+                </div>
               </div>
             </div>
 
