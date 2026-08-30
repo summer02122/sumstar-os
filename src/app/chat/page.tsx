@@ -467,15 +467,15 @@ export default function ChatPage() {
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Chat Header */}
-          <div className="px-3 md:px-6 py-2 md:py-4 border-b-3 md:border-b-4 border-black flex items-center justify-between bg-white shrink-0">
-            <div className="flex items-center gap-2 md:gap-3">
+          <div className="px-3 pr-14 md:px-6 py-2 md:py-4 border-b-3 md:border-b-4 border-black flex items-center justify-between bg-white shrink-0">
+            <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
               <button
                 onClick={() => setSelectedAgent(null)}
                 className="md:hidden flex items-center justify-center w-8 h-8 bg-white border-2 border-black shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 shrink-0"
               >
                 <ChevronLeft size={20} className="stroke-[3]" />
               </button>
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-none bg-accent border-2 border-black overflow-hidden flex items-center justify-center text-lg md:text-xl shadow-[2px_2px_0px_#000000]">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-none bg-accent border-2 border-black overflow-hidden flex items-center justify-center text-lg md:text-xl shadow-[2px_2px_0px_#000000] shrink-0">
                 {selectedAgent.imageUrl ? (
                   <img src={selectedAgent.imageUrl} alt={selectedAgent.name} className="w-full h-full object-cover" />
                 ) : (
@@ -494,10 +494,10 @@ export default function ChatPage() {
             {currentMessages.length > 0 && (
               <button
                 onClick={clearChat}
-                className="flex items-center gap-1.5 text-xs font-heading font-black uppercase text-black bg-white hover:bg-[#FF0055] hover:text-white transition-colors px-3 py-1.5 border-2 border-black shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5"
+                className="flex items-center justify-center gap-1.5 text-[10px] md:text-xs font-heading font-black uppercase text-black bg-white hover:bg-[#FF0055] hover:text-white transition-colors px-2 md:px-3 py-1.5 md:py-1.5 border-2 border-black shadow-[2px_2px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 shrink-0"
               >
                 <Trash2 size={13} className="stroke-[2.5]" />
-                ล้างแชท
+                <span className="hidden md:inline">ล้างแชท</span>
               </button>
             )}
           </div>
