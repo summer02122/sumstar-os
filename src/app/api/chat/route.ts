@@ -73,6 +73,18 @@ export async function POST(req: NextRequest) {
       agent.role.toUpperCase().includes('CEO') || 
       (agent.department && agent.department.toUpperCase() === 'ORCHESTRATOR');
 
+    // Fetch user's current active todos to give the agent context
+    const { data: activeTodos } = await supabase
+      .from('todos')
+      .select('title, priority, category, notes, due_date')
+      .eq('user_id', user.id)
+      .eq('completed', false)
+      .order('created_at', { ascending: false });
+
+    const todoContext = activeTodos && activeTodos.length > 0
+      ? `\nUser's Current Active To-Do List:\n${activeTodos.map((t: any) => `- [${t.priority}] ${t.title} (${t.category}) ${t.due_date ? 'Due: '+t.due_date : ''} ${t.notes ? 'Notes: '+t.notes : ''}`).join('\n')}\n`
+      : '\nUser currently has no active tasks in their To-Do list.\n';
+
     // Build system prompt from agent identity
     const systemPrompt = `You are ${agent.name}, an AI agent in a virtual company called SumStar OS.
 
@@ -81,6 +93,7 @@ Your Department: ${agent.department || 'GENERAL'}
 Your Personality: ${agent.description}
 Your Responsibilities: ${(agent.responsibilities || []).join(', ')}
 ${memoryContext}
+${todoContext}
 ${sopContext}
 
 ${isCEO ? `
@@ -124,7 +137,8 @@ IMPORTANT RULES:
 - Reply in the same language the user writes in (Thai or English).
 - Be concise, helpful, and reflect your unique personality.
 - Do NOT roleplay as the user, and do NOT roleplay as newly created agents. Only respond as ${agent.name}.
-- Use markdown formatting when it improves readability.`;
+- Use markdown formatting when it improves readability.
+- 🚨 ANTI-HALLUCINATION RULE 🚨: If the user asks for specific data, facts, names, debts, lists, or schedules, YOU MUST check if that information is explicitly written in your "Past memories" or context. If the information is NOT present in your context, DO NOT MAKE IT UP. Honestly state that you do not have that data recorded in your memory and ask if the user would like to provide it.`;
 
     // Initialize AI Provider
     const ai = new AIProvider({
