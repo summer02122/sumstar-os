@@ -46,6 +46,37 @@ export function Sidebar() {
     }
   };
 
+  const [isTopNavHidden, setIsTopNavHidden] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    
+    // Auto-hide Top Navbar on scroll down
+    let lastScrollY = 0;
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      // Ignore if not a valid scrollable element
+      if (target.scrollTop === undefined) return;
+      
+      const currentScrollY = target.scrollTop;
+      
+      // Only trigger for main large containers, ignore small textareas
+      if (target.scrollHeight - target.clientHeight < 100) return;
+      // Ignore chat messages container so we don't hide nav when scrolling chat
+      if (target.classList.contains('custom-scrollbar') && target.classList.contains('bg-dots')) return;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 60) {
+        setIsTopNavHidden(true);
+      } else if (currentScrollY < lastScrollY) {
+        setIsTopNavHidden(false);
+      }
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, []);
+
   if (pathname === '/login') {
     return null;
   }
@@ -90,7 +121,7 @@ export function Sidebar() {
   return (
     <>
       {/* --- DESKTOP TOP NAV --- */}
-      <header className="hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card sticky top-0 z-40 shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6">
+      <header className={`hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card fixed top-0 z-40 shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6 transition-transform duration-300 ${isTopNavHidden ? '-translate-y-full' : 'translate-y-0'}`}>
         
         {/* Logo */}
         <div className="flex items-center gap-3">

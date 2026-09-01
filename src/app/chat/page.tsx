@@ -466,8 +466,8 @@ export default function ChatPage() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Chat Header */}
-          <div className="px-3 pr-14 md:px-6 py-2 md:py-4 border-b-3 md:border-b-4 border-black flex items-center justify-between bg-white shrink-0">
+          {/* Chat Header (Mobile Only) */}
+          <div className="md:hidden px-3 pr-14 py-2 border-b-3 border-black flex items-center justify-between bg-white shrink-0">
             <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
               <button
                 onClick={() => setSelectedAgent(null)}
@@ -564,6 +564,19 @@ export default function ChatPage() {
           {/* Input Area */}
           <div className="px-3 py-3 md:px-6 md:py-4 border-t-3 md:border-t-4 border-black bg-white">
             <div className="flex items-end gap-2 max-w-4xl mx-auto">
+              {/* Clear Chat Button (Desktop Only) */}
+              {currentMessages.length > 0 && (
+                <motion.button
+                  onClick={clearChat}
+                  title="ล้างแชท"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="hidden md:flex w-11 h-11 mb-0.5 rounded-none bg-surface hover:bg-[#FF0055] text-black hover:text-white border-2 border-black items-center justify-center shadow-[3px_3px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all shrink-0"
+                >
+                  <Trash2 size={18} className="stroke-[2.5]" />
+                </motion.button>
+              )}
+              
               <div className="flex-1 bg-surface-2 border-2 md:border-3 border-black rounded-none px-3 py-2 md:px-4 md:py-2.5 shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000] focus-within:bg-white transition-colors">
                 <textarea
                   ref={textareaRef}
