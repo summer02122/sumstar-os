@@ -120,6 +120,14 @@ export function Sidebar() {
 
   return (
     <>
+      {/* Invisible Hover Zone at Top to reveal Navbar */}
+      {isTopNavHidden && (
+        <div 
+          className="hidden md:block fixed top-0 left-0 w-full h-8 z-50 bg-transparent cursor-pointer" 
+          onMouseEnter={() => setIsTopNavHidden(false)}
+        />
+      )}
+
       {/* --- DESKTOP TOP NAV --- */}
       <header className={`hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card fixed top-0 z-40 shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6 transition-transform duration-300 ${isTopNavHidden ? '-translate-y-full' : 'translate-y-0'}`}>
         
