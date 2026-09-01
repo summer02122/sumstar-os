@@ -128,7 +128,7 @@ export default function CommandCenter() {
 
   return (
     <main className="flex-1 overflow-y-auto bg-background p-3 md:p-8 flex justify-center font-sans">
-      <div className="w-full max-w-3xl space-y-6 md:space-y-8 mt-4 md:mt-6">
+      <div className="w-full max-w-3xl space-y-6 md:space-y-8 mt-12 md:mt-6">
         
         {/* Command Form Container */}
         <motion.div 

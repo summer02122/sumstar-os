@@ -29,6 +29,14 @@ export function Sidebar() {
     }
   }, []);
 
+  React.useEffect(() => {
+    if (isBottomNavHidden) {
+      document.body.classList.add('mobile-nav-hidden');
+    } else {
+      document.body.classList.remove('mobile-nav-hidden');
+    }
+  }, [isBottomNavHidden]);
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -155,9 +163,9 @@ export function Sidebar() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="md:hidden fixed top-2 right-2 z-50 p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
+          className="md:hidden fixed top-3 right-3 z-50 p-1.5 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground active:translate-x-0.5 active:translate-y-0.5"
         >
-          <Menu size={20} />
+          <Menu size={18} className="stroke-[2.5]" />
         </button>
       )}
 

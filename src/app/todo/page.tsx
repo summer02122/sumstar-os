@@ -646,7 +646,7 @@ export default function TodoPage() {
 
   return (
     <main className="flex-1 overflow-y-auto bg-background p-3 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6 mt-2 md:mt-0">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6 mt-12 md:mt-0">
 
         {/* Header */}
         <header className="border-b-4 border-black dark:border-border pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
