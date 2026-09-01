@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isBottomNavHidden, setIsBottomNavHidden] = useState(false);
-  const [isTopNavCollapsed, setIsTopNavCollapsed] = useState(false);
+  const [isTopNavCollapsed, setIsTopNavCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const logoFileInputRef = React.useRef<HTMLInputElement>(null);
@@ -101,6 +101,7 @@ export function Sidebar() {
 
       {/* --- DESKTOP TOP NAV --- */}
       <header 
+        onMouseLeave={() => setIsTopNavCollapsed(true)}
         className="hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6 z-40 transition-all duration-300 relative"
         style={{ marginTop: isTopNavCollapsed ? '-64px' : '0px' }}
       >
@@ -140,9 +141,6 @@ export function Sidebar() {
 
         {/* Controls */}
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsTopNavCollapsed(true)} className="p-2 border-2 border-black dark:border-border bg-white dark:bg-surface hover:bg-primary/20 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground transition-colors active:translate-x-0.5 active:translate-y-0.5" title="Hide Navbar">
-            <ChevronUp size={14} className="stroke-[2.5]" />
-          </button>
           <button onClick={toggleTheme} className="p-2 border-2 border-black dark:border-border bg-white dark:bg-surface hover:bg-primary/20 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground transition-colors active:translate-x-0.5 active:translate-y-0.5">
             {mounted && settings.theme === 'dark' ? <Sun size={14} className="stroke-[2.5]" /> : <Moon size={14} className="stroke-[2.5]" />}
           </button>
