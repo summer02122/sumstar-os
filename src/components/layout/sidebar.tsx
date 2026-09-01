@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Users, CheckSquare, Brain, Settings, Menu, X, Sun, Moon, LogOut, BookOpen, MessageSquare, ListTodo, Upload, ChevronDown } from "lucide-react";
+import { Home, Users, CheckSquare, Brain, Settings, Menu, X, Sun, Moon, LogOut, BookOpen, MessageSquare, ListTodo, Upload, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAgentStore } from "@/store/agentStore";
@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isBottomNavHidden, setIsBottomNavHidden] = useState(false);
+  const [isTopNavCollapsed, setIsTopNavCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const logoFileInputRef = React.useRef<HTMLInputElement>(null);
@@ -91,7 +92,8 @@ export function Sidebar() {
     <>
       {/* --- DESKTOP TOP NAV --- */}
       <header 
-        className="hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6 z-40"
+        className="hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6 z-40 transition-all duration-300 relative"
+        style={{ marginTop: isTopNavCollapsed ? '-64px' : '0px' }}
       >
         
         {/* Logo */}
@@ -136,6 +138,14 @@ export function Sidebar() {
             <LogOut size={14} className="stroke-[2.5]" />
           </button>
         </div>
+
+        {/* Manual Toggle Button (Hangs below the header) */}
+        <button
+          onClick={() => setIsTopNavCollapsed(!isTopNavCollapsed)}
+          className="absolute -bottom-[24px] left-1/2 -translate-x-1/2 w-12 h-6 bg-surface dark:bg-card border-x-4 border-b-4 border-t-0 border-black dark:border-border rounded-b-lg flex items-center justify-center hover:bg-primary/20 transition-colors shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] cursor-pointer"
+        >
+          {isTopNavCollapsed ? <ChevronDown size={14} className="stroke-[3] text-black dark:text-foreground" /> : <ChevronUp size={14} className="stroke-[3] text-black dark:text-foreground" />}
+        </button>
       </header>
 
       {/* --- MOBILE CONTROLS --- */}
