@@ -90,6 +90,15 @@ export function Sidebar() {
 
   return (
     <>
+      {/* Invisible Hover Zone at Top to reveal Navbar */}
+      {isTopNavCollapsed && (
+        <div 
+          className="hidden md:block fixed top-0 left-0 w-full h-4 z-50 bg-transparent cursor-pointer" 
+          onMouseEnter={() => setIsTopNavCollapsed(false)}
+          title="Show Navbar"
+        />
+      )}
+
       {/* --- DESKTOP TOP NAV --- */}
       <header 
         className="hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6 z-40 transition-all duration-300 relative"
@@ -131,6 +140,9 @@ export function Sidebar() {
 
         {/* Controls */}
         <div className="flex items-center gap-3">
+          <button onClick={() => setIsTopNavCollapsed(true)} className="p-2 border-2 border-black dark:border-border bg-white dark:bg-surface hover:bg-primary/20 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground transition-colors active:translate-x-0.5 active:translate-y-0.5" title="Hide Navbar">
+            <ChevronUp size={14} className="stroke-[2.5]" />
+          </button>
           <button onClick={toggleTheme} className="p-2 border-2 border-black dark:border-border bg-white dark:bg-surface hover:bg-primary/20 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground transition-colors active:translate-x-0.5 active:translate-y-0.5">
             {mounted && settings.theme === 'dark' ? <Sun size={14} className="stroke-[2.5]" /> : <Moon size={14} className="stroke-[2.5]" />}
           </button>
@@ -138,14 +150,6 @@ export function Sidebar() {
             <LogOut size={14} className="stroke-[2.5]" />
           </button>
         </div>
-
-        {/* Manual Toggle Button (Hangs below the header) */}
-        <button
-          onClick={() => setIsTopNavCollapsed(!isTopNavCollapsed)}
-          className="absolute -bottom-[24px] left-1/2 -translate-x-1/2 w-12 h-6 bg-surface dark:bg-card border-x-4 border-b-4 border-t-0 border-black dark:border-border rounded-b-lg flex items-center justify-center hover:bg-primary/20 transition-colors shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] cursor-pointer"
-        >
-          {isTopNavCollapsed ? <ChevronDown size={14} className="stroke-[3] text-black dark:text-foreground" /> : <ChevronUp size={14} className="stroke-[3] text-black dark:text-foreground" />}
-        </button>
       </header>
 
       {/* --- MOBILE CONTROLS --- */}
