@@ -89,6 +89,54 @@ export function Sidebar() {
 
   return (
     <>
+      {/* --- DESKTOP TOP NAV --- */}
+      <header className="hidden md:flex w-full h-16 border-b-4 border-black dark:border-border bg-surface dark:bg-card sticky top-0 z-40 shrink-0 font-sans shadow-[0px_4px_0px_#000000] dark:shadow-[0px_4px_0px_var(--border)] items-center justify-between px-6">
+        
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white flex items-center justify-center border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] overflow-hidden shrink-0">
+            <img src={settings.logoUrl || "/logo_star.png"} alt="Logo" className="w-full h-full object-cover" />
+          </div>
+          <Link href="/" className="flex flex-col group">
+            <span className="font-heading font-black tracking-tight text-base text-black dark:text-foreground uppercase leading-none group-hover:text-primary transition-colors">
+              SumStar OS
+            </span>
+          </Link>
+        </div>
+
+        {/* Nav Links */}
+        <nav className="flex items-center gap-2">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-none text-[11px] uppercase font-heading tracking-wider transition-all ${
+                  isActive
+                    ? "bg-white text-black dark:bg-primary dark:text-primary-foreground font-black shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)] border-2 border-black dark:border-border rotate-[-1deg]"
+                    : "text-black/80 dark:text-foreground/80 font-bold border-2 border-transparent hover:border-black dark:hover:border-border hover:bg-white dark:hover:bg-card hover:text-black dark:hover:text-foreground hover:shadow-[2px_2px_0px_#000000] dark:hover:shadow-[2px_2px_0px_var(--border)] hover:rotate-[0.5deg]"
+                }`}
+              >
+                <item.icon size={14} className="stroke-[2.5]" />
+                <span className="hidden lg:inline">{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Controls */}
+        <div className="flex items-center gap-3">
+          <button onClick={toggleTheme} className="p-2 border-2 border-black dark:border-border bg-white dark:bg-surface hover:bg-primary/20 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground transition-colors active:translate-x-0.5 active:translate-y-0.5">
+            {mounted && settings.theme === 'dark' ? <Sun size={14} className="stroke-[2.5]" /> : <Moon size={14} className="stroke-[2.5]" />}
+          </button>
+          <button onClick={handleLogout} className="p-2 border-2 border-black dark:border-border bg-primary text-primary-foreground hover:opacity-90 shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] transition-colors active:translate-x-0.5 active:translate-y-0.5">
+            <LogOut size={14} className="stroke-[2.5]" />
+          </button>
+        </div>
+      </header>
+
+      {/* --- MOBILE CONTROLS --- */}
       {/* Mobile toggle (Top Right) */}
       {!isOpen && (
         <button
@@ -161,7 +209,7 @@ export function Sidebar() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Mobile Sidebar Drawer */}
       <AnimatePresence mode="wait">
         {isOpen && (
           <motion.aside 
@@ -169,33 +217,25 @@ export function Sidebar() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -280, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="w-64 border-r-4 border-black dark:border-border bg-surface dark:bg-card h-screen fixed md:sticky top-0 left-0 flex flex-col z-40 shrink-0 font-sans shadow-[4px_0px_0px_#000000] dark:shadow-[4px_0px_0px_var(--border)]"
+            className="md:hidden w-64 border-r-4 border-black dark:border-border bg-surface dark:bg-card h-screen fixed top-0 left-0 flex flex-col z-40 shrink-0 font-sans shadow-[4px_0px_0px_#000000] dark:shadow-[4px_0px_0px_var(--border)]"
           >
             {/* Header */}
             <div className="p-4 border-b-4 border-black dark:border-border flex items-center justify-between bg-white dark:bg-card">
               <div className="flex items-center gap-2.5">
-                <div 
-                  className="relative w-8 h-8 bg-white flex items-center justify-center border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] overflow-hidden shrink-0"
-                >
-                  <img src="/logo_star.png" alt="Logo" className="w-full h-full object-cover" />
+                <div className="relative w-8 h-8 bg-white flex items-center justify-center border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] overflow-hidden shrink-0">
+                  <img src={settings.logoUrl || "/logo_star.png"} alt="Logo" className="w-full h-full object-cover" />
                 </div>
-
                 <Link href="/" className="flex flex-col group">
                   <span className="font-heading font-black tracking-tight text-lg text-black dark:text-foreground uppercase leading-none group-hover:text-primary transition-colors">
                     SumStar OS
                   </span>
-                  <span className="text-[9px] font-mono font-bold tracking-widest text-black/60 dark:text-foreground/60 uppercase mt-0.5">
-                    Studio Edition
-                  </span>
                 </Link>
               </div>
-              
               <button 
                 onClick={() => setIsOpen(false)}
                 className="flex p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-none text-black dark:text-foreground transition-colors border border-transparent hover:border-black dark:hover:border-border"
               >
-                <Menu size={18} className="hidden md:block" />
-                <X size={20} className="md:hidden stroke-[2.5]" />
+                <X size={20} className="stroke-[2.5]" />
               </button>
             </div>
 
@@ -207,9 +247,7 @@ export function Sidebar() {
                   <motion.div key={item.href} whileHover={{ x: 3 }} whileTap={{ scale: 0.98 }}>
                     <Link
                       href={item.href}
-                      onClick={() => {
-                        if (window.innerWidth < 768) setIsOpen(false);
-                      }}
+                      onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-none text-xs uppercase font-heading tracking-wider transition-all ${
                         isActive
                           ? "bg-white text-black dark:bg-primary dark:text-primary-foreground font-black shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_var(--border)] border-2 border-black dark:border-border rotate-[-1deg]"
@@ -247,18 +285,6 @@ export function Sidebar() {
           </motion.aside>
         )}
       </AnimatePresence>
-
-      {/* When closed on desktop, show a small toggle */}
-      {!isOpen && (
-        <div className="hidden md:flex flex-col items-center py-4 w-12 border-r-4 border-black dark:border-border h-screen sticky top-0 bg-surface shrink-0">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="p-2 bg-white dark:bg-card border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] text-black dark:text-foreground hover:bg-primary/20 transition-colors"
-          >
-            <Menu size={18} />
-          </button>
-        </div>
-      )}
     </>
   );
 }
