@@ -12,11 +12,12 @@ import Swal from "sweetalert2";
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isBottomNavHidden, setIsBottomNavHidden] = useState(false);
+  const [isMobileNavVisible, setIsMobileNavVisible] = useState(false);
   const [isTopNavCollapsed, setIsTopNavCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const logoFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [navTouchStartY, setNavTouchStartY] = useState(0);
 
   const { settings, updateSettings } = useAgentStore();
   const router = useRouter();
@@ -28,14 +29,6 @@ export function Sidebar() {
       setIsOpen(true);
     }
   }, []);
-
-  React.useEffect(() => {
-    if (isBottomNavHidden) {
-      document.body.classList.add('mobile-nav-hidden');
-    } else {
-      document.body.classList.remove('mobile-nav-hidden');
-    }
-  }, [isBottomNavHidden]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -169,52 +162,53 @@ export function Sidebar() {
         </button>
       )}
 
-      {/* Mobile Bottom Nav (Floating Pill) */}
+      {/* Swipe/Tap zone at the bottom of the screen */}
       {!isOpen && (
-        <div className={`md:hidden fixed z-50 transition-all duration-300 ${isBottomNavHidden ? 'bottom-2 right-4 left-auto' : 'bottom-6 left-4 right-4'}`}>
-          {isBottomNavHidden ? (
-            <button 
-              onClick={() => setIsBottomNavHidden(false)}
-              className="bg-surface dark:bg-card border-2 border-black dark:border-border rounded-full p-2 shadow-[2px_2px_0px_#000000] text-black dark:text-foreground flex items-center gap-1 text-[10px] font-bold uppercase"
-            >
-              <Menu size={16} /> <span>Menu</span>
-            </button>
-          ) : (
-            <div className="relative max-w-sm mx-auto">
-              <button 
-                onClick={() => setIsBottomNavHidden(true)}
-                className="absolute -top-10 right-2 bg-surface dark:bg-card border-2 border-black dark:border-border rounded-full px-2 py-1 shadow-[2px_2px_0px_#000000] text-black dark:text-foreground flex items-center gap-1 text-[10px] font-bold uppercase"
-              >
-                <span>Hide</span> <ChevronDown size={14} />
-              </button>
-              <nav className="bg-surface dark:bg-card border-2 border-black dark:border-border shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_var(--border)] rounded-full flex items-center justify-between px-2 py-1.5">
-                {navItems.slice(0, 4).map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`relative flex flex-col items-center justify-center w-[3.25rem] h-[3.25rem] rounded-full transition-all duration-300 ${
-                        isActive ? "text-primary-foreground -translate-y-3" : "text-black/60 dark:text-foreground/60 hover:text-black dark:hover:text-foreground"
-                      }`}
-                    >
-                      {isActive && (
-                        <motion.div
-                          layoutId="mobileNavActive"
-                          className="absolute inset-0 bg-primary border-2 border-black dark:border-border rounded-full shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]"
-                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        />
-                      )}
-                      <item.icon size={22} className={`relative z-10 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
-                      <span className={`text-[9px] font-heading font-black mt-0.5 relative z-10 uppercase ${isActive ? 'block' : 'hidden'}`}>
-                        {item.label.split(' ')[0]}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          )}
+        <div 
+          className="md:hidden fixed bottom-0 left-0 w-full h-8 z-[60] bg-transparent" 
+          onTouchStart={() => setIsMobileNavVisible(true)}
+          onClick={() => setIsMobileNavVisible(true)}
+        />
+      )}
+
+      {/* Mobile Bottom Nav (Full Width Swipe-Down to Hide) */}
+      {!isOpen && (
+        <div 
+          className={`md:hidden fixed bottom-0 left-0 w-full z-[70] transition-transform duration-300 ${isMobileNavVisible ? 'translate-y-0' : 'translate-y-full'}`}
+          onTouchStart={(e) => setNavTouchStartY(e.touches[0].clientY)}
+          onTouchEnd={(e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            if (touchEndY - navTouchStartY > 20) {
+              setIsMobileNavVisible(false);
+            }
+          }}
+        >
+          <nav className="bg-surface dark:bg-card border-t-4 border-black dark:border-border flex items-center overflow-x-auto custom-scrollbar px-2 pt-2 pb-4 gap-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`shrink-0 relative flex flex-col items-center justify-center w-[3.5rem] h-[3.5rem] rounded-none transition-all duration-300 ${
+                    isActive ? "text-primary-foreground -translate-y-2" : "text-black/60 dark:text-foreground/60 hover:text-black dark:hover:text-foreground"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="mobileNavActive"
+                      className="absolute inset-0 bg-primary border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)]"
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    />
+                  )}
+                  <item.icon size={20} className={`relative z-10 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
+                  <span className={`text-[8px] font-heading font-black mt-1 relative z-10 uppercase text-center leading-tight ${isActive ? 'block' : 'hidden'}`}>
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       )}
 

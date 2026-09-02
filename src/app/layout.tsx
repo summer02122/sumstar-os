@@ -35,7 +35,7 @@ export default function RootLayout({
       <body className={`${archivoBlack.variable} ${spaceGrotesk.variable} ${syne.variable} ${ibmPlexSansThai.variable} font-sans flex flex-col antialiased h-screen overflow-hidden bg-background text-foreground`}>
         <ThemeProvider>
           <Sidebar />
-          <div className="flex-1 overflow-hidden flex flex-col pb-20 md:pb-0 [.mobile-nav-hidden_&]:pb-0 transition-[padding] duration-300 relative">
+          <div className="flex-1 overflow-hidden flex flex-col relative pb-0 transition-[padding] duration-300">
             {children}
           </div>
           {/* Desktop Footer (Status Bar) */}
