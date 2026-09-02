@@ -445,6 +445,69 @@ export default function ChatPage() {
 
       // Final decode flush
       fullText += decoder.decode();
+
+      // Check for Sincare ADD_NOTE
+      const addNoteRegex = /\[ADD_NOTE:(.*?)\]([\s\S]*?)\[\/ADD_NOTE\]/ig;
+      let addNoteMatch;
+      while ((addNoteMatch = addNoteRegex.exec(fullText)) !== null) {
+        const category = addNoteMatch[1].trim();
+        const content = addNoteMatch[2].trim();
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("notes").insert({
+            user_id: user.id,
+            title: "Note from Chat",
+            content: content,
+            color: "yellow",
+            category: category,
+            is_pinned: false
+          });
+        }
+      }
+      fullText = fullText.replace(addNoteRegex, '').trim();
+
+      // Check for Sincare DELETE_NOTE
+      const deleteNoteRegex = /\[DELETE_NOTE:(.*?)\]/ig;
+      let deleteNoteMatch;
+      while ((deleteNoteMatch = deleteNoteRegex.exec(fullText)) !== null) {
+        const noteId = deleteNoteMatch[1].trim();
+        const supabase = createClient();
+        await supabase.from("notes").delete().eq("id", noteId);
+      }
+      fullText = fullText.replace(deleteNoteRegex, '').trim();
+
+      // Check for Sincare DELETE_TODO
+      const deleteTodoRegex = /\[DELETE_TODO:(.*?)\]/ig;
+      let deleteTodoMatch;
+      while ((deleteTodoMatch = deleteTodoRegex.exec(fullText)) !== null) {
+        const todoId = deleteTodoMatch[1].trim();
+        const supabase = createClient();
+        await supabase.from("todos").delete().eq("id", todoId);
+      }
+      fullText = fullText.replace(deleteTodoRegex, '').trim();
+
+      // Check for Sincare ADD_TODO
+      const addTodoRegex = /\[ADD_TODO:(.*?):(.*?)\]([\s\S]*?)\[\/ADD_TODO\]/ig;
+      let addTodoMatch;
+      while ((addTodoMatch = addTodoRegex.exec(fullText)) !== null) {
+        const priority = addTodoMatch[1].trim().toLowerCase();
+        const category = addTodoMatch[2].trim();
+        const title = addTodoMatch[3].trim();
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("todos").insert({
+            user_id: user.id,
+            title: title,
+            priority: priority,
+            category: category,
+            completed: false
+          });
+        }
+      }
+      fullText = fullText.replace(addTodoRegex, '').trim();
+
       setChatHistory((prev) => {
         const msgs = [...(prev[agentId] ?? [])];
         msgs[msgs.length - 1] = { role: "agent", content: fullText };

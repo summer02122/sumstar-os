@@ -28,6 +28,7 @@ export interface QuickNote {
   title: string;
   content: string;
   color: "yellow" | "pink" | "green" | "blue" | "purple" | "white";
+  category?: string;
   isPinned?: boolean;
   createdAt: number;
   updatedAt: number;
@@ -57,6 +58,8 @@ export default function TodoPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [filter, setFilter] = useState<"all" | "active" | "high" | "today" | "completed">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [noteFilterCategory, setNoteFilterCategory] = useState("all");
+  const [isNoteCategoryDropdownOpen, setIsNoteCategoryDropdownOpen] = useState(false);
 
   // SINCARE Assistant States
   const [nlInput, setNlInput] = useState("");
@@ -72,12 +75,12 @@ export default function TodoPage() {
   const [manualDueDate, setManualDueDate] = useState("");
   const [manualNotes, setManualNotes] = useState("");
 
-  // Note Modal (Add / Edit)
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
   const [noteColor, setNoteColor] = useState<QuickNote["color"]>("yellow");
+  const [noteCategory, setNoteCategory] = useState("");
 
   // Load from Supabase instead of localStorage
   useEffect(() => {
@@ -120,6 +123,7 @@ export default function TodoPage() {
             title: n.title,
             content: n.content,
             color: n.color as any,
+            category: n.category,
             isPinned: n.is_pinned,
             createdAt: new Date(n.created_at).getTime(),
             updatedAt: new Date(n.updated_at).getTime()
@@ -231,11 +235,13 @@ export default function TodoPage() {
       setNoteTitle(note.title);
       setNoteContent(note.content);
       setNoteColor(note.color);
+      setNoteCategory(note.category || "");
     } else {
       setEditingNoteId(null);
       setNoteTitle("");
       setNoteContent("");
       setNoteColor("yellow");
+      setNoteCategory("");
     }
     setShowNoteModal(true);
   };
@@ -251,9 +257,10 @@ export default function TodoPage() {
       // Optimistic UI update
       const updatedTitle = noteTitle.trim() || "Untitled Note";
       const updatedContent = noteContent.trim();
+      const updatedCategory = noteCategory.trim();
       
       setNotes(prev => prev.map(n => n.id === editingNoteId ? {
-        ...n, title: updatedTitle, content: updatedContent, color: noteColor, updatedAt: Date.now()
+        ...n, title: updatedTitle, content: updatedContent, color: noteColor, category: updatedCategory, updatedAt: Date.now()
       } : n));
       setShowNoteModal(false);
 
@@ -262,6 +269,7 @@ export default function TodoPage() {
           title: updatedTitle,
           content: updatedContent,
           color: noteColor,
+          category: updatedCategory,
           updated_at: new Date().toISOString()
         }).eq("id", editingNoteId);
       }
@@ -275,6 +283,7 @@ export default function TodoPage() {
           title: noteTitle.trim() || "Untitled Note",
           content: noteContent.trim(),
           color: noteColor,
+          category: noteCategory.trim(),
           is_pinned: false
         }).select().single();
         
@@ -284,6 +293,7 @@ export default function TodoPage() {
             title: newDbNote.title,
             content: newDbNote.content,
             color: newDbNote.color as any,
+            category: newDbNote.category,
             isPinned: newDbNote.is_pinned,
             createdAt: new Date(newDbNote.created_at).getTime(),
             updatedAt: new Date(newDbNote.updated_at).getTime()
@@ -424,6 +434,7 @@ export default function TodoPage() {
              title: noteData.title || "Untitled",
              content: noteData.content || "",
              color: noteData.color || "yellow",
+             category: noteData.category || "General",
              isPinned: false,
              createdAt: Date.now(),
              updatedAt: Date.now()
@@ -439,6 +450,7 @@ export default function TodoPage() {
               title: newNote.title,
               content: newNote.content,
               color: newNote.color,
+              category: newNote.category,
               is_pinned: false
             }).select().single();
             
@@ -448,6 +460,13 @@ export default function TodoPage() {
             }
           }
           setActiveTab("notes");
+        } else if (type === "DELETE_NOTE" && data.result.deleteTargetId) {
+          const noteId = data.result.deleteTargetId;
+          deleteNote(noteId);
+          setActiveTab("notes");
+        } else if (type === "DELETE_TODO" && data.result.deleteTargetId) {
+          const todoId = data.result.deleteTargetId;
+          deleteTodo(todoId);
         }
 
         // Show SINCARE's response to the user
@@ -631,11 +650,15 @@ export default function TodoPage() {
 
   // Filtered Notes (Sorted: Pinned first)
   const filteredNotes = notes
-    .filter(n => 
-      n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      n.content.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter(n => {
+      const matchSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          n.content.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchCat = noteFilterCategory === "all" || n.category === noteFilterCategory;
+      return matchSearch && matchCat;
+    })
     .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+
+  const noteCategories = Array.from(new Set(notes.map(n => n.category).filter(Boolean))) as string[];
 
   const totalCount = todos.length;
   const activeCount = todos.filter(t => !t.completed).length;
@@ -937,9 +960,40 @@ export default function TodoPage() {
         {activeTab === "notes" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-heading font-black uppercase text-black dark:text-foreground">
-                สมุดโน้ตทั้งหมด ({filteredNotes.length})
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-heading font-black uppercase text-black dark:text-foreground hidden md:inline-block">
+                  สมุดโน้ตทั้งหมด ({filteredNotes.length})
+                </span>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsNoteCategoryDropdownOpen(!isNoteCategoryDropdownOpen)}
+                    className="flex items-center gap-1.5 bg-white dark:bg-card border-2 border-black dark:border-border px-3 py-1.5 text-[10px] md:text-xs font-heading font-black uppercase text-black dark:text-foreground shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                  >
+                    <span>{noteFilterCategory === "all" ? "ทุกหมวดหมู่ (ALL)" : noteFilterCategory}</span>
+                    <ChevronDown size={14} className="stroke-[3]" />
+                  </button>
+                  
+                  {isNoteCategoryDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-card border-3 border-black dark:border-border rounded-none shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_var(--border)] z-[60] py-1 max-h-60 overflow-y-auto custom-scrollbar">
+                      <button
+                        onClick={() => { setNoteFilterCategory("all"); setIsNoteCategoryDropdownOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-xs font-heading font-bold uppercase text-black dark:text-foreground hover:bg-accent hover:text-black transition-colors"
+                      >
+                        ทุกหมวดหมู่ (ALL)
+                      </button>
+                      {noteCategories.map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => { setNoteFilterCategory(cat); setIsNoteCategoryDropdownOpen(false); }}
+                          className="w-full text-left px-3 py-2 text-xs font-heading font-bold uppercase text-black dark:text-foreground hover:bg-accent hover:text-black transition-colors"
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <button
                 onClick={() => openNoteModal()}
                 className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-heading font-black uppercase tracking-wider border-2 border-black dark:border-border shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] hover:opacity-90 transition-all"
@@ -1007,9 +1061,16 @@ export default function TodoPage() {
                         </div>
 
                         {/* Content */}
-                        <p className={`text-xs font-medium leading-relaxed whitespace-pre-wrap flex-1 my-2 overflow-y-auto max-h-48 custom-scrollbar ${colorStyle.text}`}>
-                          {note.content}
-                        </p>
+                        <div className="flex-1 my-2 overflow-y-auto max-h-48 custom-scrollbar">
+                          {note.category && (
+                            <span className="inline-block bg-black dark:bg-white text-white dark:text-black px-1.5 py-0.5 text-[9px] font-heading font-black uppercase mb-1.5">
+                              {note.category}
+                            </span>
+                          )}
+                          <p className={`text-xs font-medium leading-relaxed whitespace-pre-wrap ${colorStyle.text}`}>
+                            {note.content}
+                          </p>
+                        </div>
 
                         {/* Footer AI Superpowers */}
                         <div className="pt-2 mt-2 border-t border-black/15 dark:border-white/10 flex items-center justify-between gap-2 flex-wrap">
@@ -1265,6 +1326,19 @@ export default function TodoPage() {
                         />
                       ))}
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-heading font-black text-black dark:text-foreground uppercase mb-1">
+                      หมวดหมู่ (Category)
+                    </label>
+                    <input
+                      type="text"
+                      value={noteCategory}
+                      onChange={(e) => setNoteCategory(e.target.value)}
+                      placeholder="เช่น ติดหนี้, ค่าใช้จ่าย, ไอเดีย..."
+                      className="w-full border-2 border-black dark:border-border px-3.5 py-2 text-xs font-medium focus:outline-none shadow-[2px_2px_0px_#000000] dark:shadow-[2px_2px_0px_var(--border)] bg-white dark:bg-surface-2 text-black dark:text-foreground"
+                    />
                   </div>
 
                   <div>
