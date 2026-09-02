@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAgentStore, Agent } from "@/store/agentStore";
 import { createClient } from "@/utils/supabase/client";
-import { Send, Loader2, MessageSquare, Trash2, ChevronRight, ChevronLeft } from "lucide-react";
+import { Send, Loader2, MessageSquare, Trash2, ChevronRight, ChevronLeft, ChevronUp, ChevronDown } from "lucide-react";
 
 interface Message {
   role: "user" | "agent";
@@ -200,14 +200,50 @@ export default function ChatPage() {
     }
   }, [initialized, initialize]);
 
-  const agentList = Object.values(agents);
-
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [chatHistory, setChatHistory] = useState<Record<string, Message[]>>({});
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const [isEditingOrder, setIsEditingOrder] = useState(false);
+  const [agentOrder, setAgentOrder] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedOrder = localStorage.getItem('chatAgentOrder');
+    if (savedOrder) {
+      try {
+        setAgentOrder(JSON.parse(savedOrder));
+      } catch(e) {}
+    }
+  }, []);
+
+  const agentList = useMemo(() => {
+    const list = Object.values(agents);
+    if (agentOrder.length > 0) {
+      list.sort((a, b) => {
+        const idxA = agentOrder.indexOf(a.id);
+        const idxB = agentOrder.indexOf(b.id);
+        if (idxA === -1 && idxB === -1) return 0;
+        if (idxA === -1) return 1;
+        if (idxB === -1) return -1;
+        return idxA - idxB;
+      });
+    }
+    return list;
+  }, [agents, agentOrder]);
+
+  const moveAgent = (index: number, direction: 'up' | 'down') => {
+    const newOrder = agentList.map(a => a.id);
+    if (direction === 'up' && index > 0) {
+      [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+    } else if (direction === 'down' && index < newOrder.length - 1) {
+      [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+    }
+    setAgentOrder(newOrder);
+    localStorage.setItem('chatAgentOrder', JSON.stringify(newOrder));
+  };
 
   const currentMessages = selectedAgent ? chatHistory[selectedAgent.id] ?? [] : [];
 
@@ -388,12 +424,20 @@ export default function ChatPage() {
     <main className="flex-1 flex flex-col md:flex-row overflow-hidden bg-background h-full">
       {/* Sidebar / Topbar: Agent Selector */}
       <aside className={`w-full md:w-64 shrink-0 bg-surface md:border-r-4 border-b-4 md:border-b-0 border-black flex-col ${selectedAgent ? 'hidden md:flex' : 'flex flex-1 md:flex-none'}`}>
-        <div className="p-3 md:p-4 border-b-4 border-black bg-white">
-          <h1 className="font-heading font-black text-black text-sm md:text-base uppercase tracking-tight flex items-center gap-2">
-            <MessageSquare size={16} className="stroke-[2.5]" />
-            Direct Studio Chat
-          </h1>
-          <p className="hidden md:block text-[11px] font-bold text-black/70 mt-1 uppercase">TALK 1-ON-1 WITH AGENTS</p>
+        <div className="p-3 md:p-4 border-b-4 border-black bg-white flex justify-between items-start">
+          <div>
+            <h1 className="font-heading font-black text-black text-sm md:text-base uppercase tracking-tight flex items-center gap-2">
+              <MessageSquare size={16} className="stroke-[2.5]" />
+              Direct Studio Chat
+            </h1>
+            <p className="hidden md:block text-[11px] font-bold text-black/70 mt-1 uppercase">TALK 1-ON-1 WITH AGENTS</p>
+          </div>
+          <button 
+            onClick={() => setIsEditingOrder(!isEditingOrder)}
+            className={`text-[10px] font-heading font-black uppercase px-2 py-1 border-2 border-black shadow-[1.5px_1.5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all ${isEditingOrder ? 'bg-primary text-primary-foreground' : 'bg-white text-black hover:bg-accent'}`}
+          >
+            {isEditingOrder ? 'DONE' : 'EDIT'}
+          </button>
         </div>
 
         <nav className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
@@ -406,49 +450,60 @@ export default function ChatPage() {
               ไม่พบ Agent ในระบบ<br className="hidden md:block" />กรุณาไปหน้า Settings
             </p>
           ) : (
-            agentList.map((agent) => {
+            agentList.map((agent, idx) => {
               const key = agent.name.toUpperCase();
               const aColors = getAgentColor(key);
               const isActive = selectedAgent?.id === agent.id;
               const msgCount = chatHistory[agent.id]?.length ?? 0;
 
               return (
-                <motion.button
-                  key={agent.id}
-                  onClick={() => setSelectedAgent(agent)}
-                  whileHover={{ x: 2, rotate: -0.5 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full flex items-center gap-2 md:gap-3 px-3 py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
-                    isActive
-                      ? `${aColors.bg} shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
-                      : "bg-white hover:bg-accent"
-                  }`}
-                >
-                  <div className="relative shrink-0">
-                    <div className="w-9 h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-lg shadow-[1.5px_1.5px_0px_#000000]">
-                      {agent.imageUrl ? (
-                        <img src={agent.imageUrl} alt={agent.name} className="w-full h-full object-cover" />
-                      ) : (
-                        getAgentEmoji(key)
-                      )}
+                <div key={agent.id} className="flex items-center gap-2">
+                  <motion.button
+                    onClick={() => !isEditingOrder && setSelectedAgent(agent)}
+                    whileHover={!isEditingOrder ? { x: 2, rotate: -0.5 } : {}}
+                    whileTap={!isEditingOrder ? { scale: 0.98 } : {}}
+                    className={`flex-1 flex items-center gap-2 md:gap-3 px-3 py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
+                      isActive && !isEditingOrder
+                        ? `${aColors.bg} shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
+                        : "bg-white hover:bg-accent"
+                    } ${isEditingOrder ? "cursor-default" : ""}`}
+                  >
+                    <div className="relative shrink-0">
+                      <div className="w-9 h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-lg shadow-[1.5px_1.5px_0px_#000000]">
+                        {agent.imageUrl ? (
+                          <img src={agent.imageUrl} alt={agent.name} className="w-full h-full object-cover" />
+                        ) : (
+                          getAgentEmoji(key)
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="font-heading font-black text-black text-sm uppercase leading-none truncate">
-                      {agent.name}
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="font-heading font-black text-black text-sm uppercase leading-none truncate">
+                        {agent.name}
+                      </div>
+                      <div className="text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
+                        {agent.role}
+                      </div>
                     </div>
-                    <div className="text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
-                      {agent.role}
+                    {msgCount > 0 && !isEditingOrder && (
+                      <span className="text-[10px] font-heading font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-none border border-black">
+                        {msgCount}
+                      </span>
+                    )}
+                    {isActive && !isEditingOrder && <ChevronRight size={14} className="text-black stroke-[3] shrink-0 hidden md:block" />}
+                  </motion.button>
+                  {isEditingOrder && (
+                    <div className="flex flex-col gap-1 shrink-0">
+                      <button onClick={() => moveAgent(idx, 'up')} disabled={idx === 0} className="p-1 border-2 border-black bg-white hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed shadow-[1px_1px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all">
+                        <ChevronUp size={12} className="stroke-[3]" />
+                      </button>
+                      <button onClick={() => moveAgent(idx, 'down')} disabled={idx === agentList.length - 1} className="p-1 border-2 border-black bg-white hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed shadow-[1px_1px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all">
+                        <ChevronDown size={12} className="stroke-[3]" />
+                      </button>
                     </div>
-                  </div>
-                  {msgCount > 0 && (
-                    <span className="text-[10px] font-heading font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-none border border-black">
-                      {msgCount}
-                    </span>
                   )}
-                  {isActive && <ChevronRight size={14} className="text-black stroke-[3] shrink-0 hidden md:block" />}
-                </motion.button>
+                </div>
               );
             })
           )}
