@@ -4,7 +4,10 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAgentStore, Agent } from "@/store/agentStore";
 import { createClient } from "@/utils/supabase/client";
-import { Send, Loader2, MessageSquare, Trash2, ChevronRight, ChevronLeft, ChevronUp, ChevronDown } from "lucide-react";
+import { Send, Loader2, MessageSquare, Trash2, ChevronRight, ChevronLeft, GripVertical } from "lucide-react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Message {
   role: "user" | "agent";
@@ -191,6 +194,69 @@ function MessageBubble({
   );
 }
 
+function SortableAgentItem({ agent, isEditingOrder, isActive, msgCount, onClick }: any) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: agent.id, disabled: !isEditingOrder });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    position: 'relative' as any,
+  };
+
+  const key = agent.name.toUpperCase();
+  const aColors = getAgentColor(key);
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2">
+      <motion.button
+        onClick={onClick}
+        {...(isEditingOrder ? { ...attributes, ...listeners } : {})}
+        whileHover={!isEditingOrder ? { x: 2, rotate: -0.5 } : {}}
+        whileTap={!isEditingOrder ? { scale: 0.98 } : {}}
+        className={`w-full flex items-center gap-2 md:gap-3 px-3 py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
+          isActive && !isEditingOrder
+            ? `${aColors.bg} shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
+            : "bg-white hover:bg-accent"
+        } ${isEditingOrder ? "cursor-grab active:cursor-grabbing" : ""}`}
+      >
+        <div className="relative shrink-0">
+          <div className="w-9 h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-lg shadow-[1.5px_1.5px_0px_#000000]">
+            {agent.imageUrl ? (
+              <img src={agent.imageUrl} alt={agent.name} className="w-full h-full object-cover" />
+            ) : (
+              getAgentEmoji(key)
+            )}
+          </div>
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="font-heading font-black text-black text-sm uppercase leading-none truncate">
+            {agent.name}
+          </div>
+          <div className="text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
+            {agent.role}
+          </div>
+        </div>
+        {msgCount > 0 && !isEditingOrder && (
+          <span className="text-[10px] font-heading font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-none border border-black">
+            {msgCount}
+          </span>
+        )}
+        {isActive && !isEditingOrder && <ChevronRight size={14} className="text-black stroke-[3] shrink-0 hidden md:block" />}
+        {isEditingOrder && <GripVertical size={16} className="text-black/40 stroke-[2] shrink-0 ml-1" />}
+      </motion.button>
+    </div>
+  );
+}
+
 export default function ChatPage() {
   const { agents, settings, initialized, initialize } = useAgentStore();
 
@@ -234,15 +300,26 @@ export default function ChatPage() {
     return list;
   }, [agents, agentOrder]);
 
-  const moveAgent = (index: number, direction: 'up' | 'down') => {
-    const newOrder = agentList.map(a => a.id);
-    if (direction === 'up' && index > 0) {
-      [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-    } else if (direction === 'down' && index < newOrder.length - 1) {
-      [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = agentList.findIndex(a => a.id === active.id);
+      const newIndex = agentList.findIndex(a => a.id === over.id);
+      const newOrder = arrayMove(agentList.map(a => a.id), oldIndex, newIndex);
+      setAgentOrder(newOrder);
+      localStorage.setItem('chatAgentOrder', JSON.stringify(newOrder));
     }
-    setAgentOrder(newOrder);
-    localStorage.setItem('chatAgentOrder', JSON.stringify(newOrder));
   };
 
   const currentMessages = selectedAgent ? chatHistory[selectedAgent.id] ?? [] : [];
@@ -299,7 +376,8 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (agentList.length > 0 && !selectedAgent) {
-      setSelectedAgent(agentList[0]);
+      const sumAgent = agentList.find(a => a.name.toUpperCase() === 'SUM');
+      setSelectedAgent(sumAgent || agentList[0]);
     }
   }, [agentList.length]);
 
@@ -450,62 +528,24 @@ export default function ChatPage() {
               ไม่พบ Agent ในระบบ<br className="hidden md:block" />กรุณาไปหน้า Settings
             </p>
           ) : (
-            agentList.map((agent, idx) => {
-              const key = agent.name.toUpperCase();
-              const aColors = getAgentColor(key);
-              const isActive = selectedAgent?.id === agent.id;
-              const msgCount = chatHistory[agent.id]?.length ?? 0;
-
-              return (
-                <div key={agent.id} className="flex items-center gap-2">
-                  <motion.button
-                    onClick={() => !isEditingOrder && setSelectedAgent(agent)}
-                    whileHover={!isEditingOrder ? { x: 2, rotate: -0.5 } : {}}
-                    whileTap={!isEditingOrder ? { scale: 0.98 } : {}}
-                    className={`flex-1 flex items-center gap-2 md:gap-3 px-3 py-3 rounded-none text-left transition-all border-2 border-black shadow-[2px_2px_0px_#000000] shrink-0 ${
-                      isActive && !isEditingOrder
-                        ? `${aColors.bg} shadow-[4px_4px_0px_#000000] rotate-[-0.75deg]`
-                        : "bg-white hover:bg-accent"
-                    } ${isEditingOrder ? "cursor-default" : ""}`}
-                  >
-                    <div className="relative shrink-0">
-                      <div className="w-9 h-9 rounded-none bg-white border-2 border-black overflow-hidden flex items-center justify-center text-lg shadow-[1.5px_1.5px_0px_#000000]">
-                        {agent.imageUrl ? (
-                          <img src={agent.imageUrl} alt={agent.name} className="w-full h-full object-cover" />
-                        ) : (
-                          getAgentEmoji(key)
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="font-heading font-black text-black text-sm uppercase leading-none truncate">
-                        {agent.name}
-                      </div>
-                      <div className="text-[10px] font-bold text-black/60 uppercase mt-0.5 truncate">
-                        {agent.role}
-                      </div>
-                    </div>
-                    {msgCount > 0 && !isEditingOrder && (
-                      <span className="text-[10px] font-heading font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-none border border-black">
-                        {msgCount}
-                      </span>
-                    )}
-                    {isActive && !isEditingOrder && <ChevronRight size={14} className="text-black stroke-[3] shrink-0 hidden md:block" />}
-                  </motion.button>
-                  {isEditingOrder && (
-                    <div className="flex flex-col gap-1 shrink-0">
-                      <button onClick={() => moveAgent(idx, 'up')} disabled={idx === 0} className="p-1 border-2 border-black bg-white hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed shadow-[1px_1px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all">
-                        <ChevronUp size={12} className="stroke-[3]" />
-                      </button>
-                      <button onClick={() => moveAgent(idx, 'down')} disabled={idx === agentList.length - 1} className="p-1 border-2 border-black bg-white hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed shadow-[1px_1px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all">
-                        <ChevronDown size={12} className="stroke-[3]" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={agentList.map(a => a.id)} strategy={verticalListSortingStrategy}>
+                {agentList.map((agent) => {
+                  const isActive = selectedAgent?.id === agent.id;
+                  const msgCount = chatHistory[agent.id]?.length ?? 0;
+                  return (
+                    <SortableAgentItem
+                      key={agent.id}
+                      agent={agent}
+                      isActive={isActive}
+                      isEditingOrder={isEditingOrder}
+                      msgCount={msgCount}
+                      onClick={() => !isEditingOrder && setSelectedAgent(agent)}
+                    />
+                  );
+                })}
+              </SortableContext>
+            </DndContext>
           )}
         </nav>
       </aside>
